@@ -47,6 +47,9 @@ jobs:
 
           git commit -m "Update Hijri date - $(date)"
 
+          # Pull any remote changes first, then push
+          git pull --rebase origin main || true
+
           # Try push with the default token first (persisted credentials). If it fails and a REPO_TOKEN
           # is provided, retry using that token.
           if git push; then
