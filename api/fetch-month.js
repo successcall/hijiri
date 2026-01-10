@@ -25,16 +25,25 @@ async function fetchHijriMonth() {
     await page.waitForTimeout(3000); // Extra wait for dynamic content
 
     const monthData = await page.evaluate(() => {
+      // Helper: Get current date in Sri Lanka timezone
+      function getSLDate() {
+        const now = new Date();
+        // Convert to Sri Lanka time (UTC+5:30)
+        const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+        return slTime;
+      }
+
       // Get month and year from the specific ID
       const h1Text = document.getElementById('hijri-month-name')?.innerText?.trim() || 'Unknown';
       const hijriMonth = h1Text.replace(/ \d{4}/g, '').trim();
       const yearMatch = h1Text.match(/\d{4}/);
       const hijriYear = yearMatch ? yearMatch[0] : '1447';
       
-      // Get today's date from the specific ID
-      const todayHeading = document.getElementById('gregorian-month-name')?.innerText?.trim() || 'Unknown';
-      const gregorianMatch = todayHeading.match(/Today:\s*(.+)/);
-      const currentDate = gregorianMatch ? gregorianMatch[1] : todayHeading;
+      // Get today's date from the specific ID (use SL time)
+      const slNow = getSLDate();
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const currentDate = `${dayNames[slNow.getDay()]}, ${fullMonthNames[slNow.getMonth()]} ${slNow.getDate()}, ${slNow.getFullYear()}`;
 
       // Try to determine actual month length from the calendar
       const bodyText = document.body.textContent || '';
@@ -54,7 +63,7 @@ async function fetchHijriMonth() {
       }
       
       // Find current Hijri day - try from page first, fallback to calculation
-      const today = new Date();
+      const today = getSLDate();
       const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const todayMonth = monthAbbr[today.getMonth()];
       const todayDay = today.getDate();

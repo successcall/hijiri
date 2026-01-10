@@ -23,6 +23,14 @@ async function fetchHijriDate() {
     await page.waitForTimeout(2000); // Wait for dynamic content
 
     const hijriData = await page.evaluate(() => {
+      // Helper: Get current date in Sri Lanka timezone
+      function getSLDate() {
+        const now = new Date();
+        // Convert to Sri Lanka time (UTC+5:30)
+        const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+        return slTime;
+      }
+
       // Get Hijri month from h1
       const hijriMonth = document.querySelector('h1')?.innerText?.trim() || 'Unknown';
       
@@ -39,7 +47,7 @@ async function fetchHijriDate() {
       const gregorianDate = gregorianMatch ? gregorianMatch[1] : todayHeading;
       
       // Extract Hijri day from calendar by finding today's date
-      const today = new Date();
+      const today = getSLDate();
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const month = monthNames[today.getMonth()];
       const day = today.getDate();
@@ -96,16 +104,22 @@ async function fetchHijriDate() {
         const monthStart = monthStarts[cleanMonth];
         
         if (monthStart) {
-          const now = new Date();
+          const now = getSLDate();
           const diffDays = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
           hijriDay = diffDays > 0 ? diffDays.toString() : '1';
         }
       }
 
+      // Format current SL date for display
+      const slNow = getSLDate();
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const formattedSLDate = `${dayNames[slNow.getDay()]}, ${fullMonthNames[slNow.getMonth()]} ${slNow.getDate()}, ${slNow.getFullYear()}`;
+
       return {
         hijriDay: hijriDay,
         hijriMonth: hijriMonth.replace(' 1447', '').replace(' 1446', '').replace('1447', '').replace('1446', '').trim(),
-        gregorianDate: gregorianDate,
+        gregorianDate: formattedSLDate,
         fetchedAt: new Date().toISOString(),
       };
     });
