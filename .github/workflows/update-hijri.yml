@@ -34,8 +34,30 @@ jobs:
         run: npm run fetch-month
 
       - name: Commit and push
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add api/hijri.json api/hijri-month.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update Hijri date - $(date)" && git push)
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update Hijri date - $(date)"
+
+          # Try push with the default token first (persisted credentials). If it fails and a REPO_TOKEN
+          # is provided, retry using that token.
+          if git push; then
+            echo "Pushed with GITHUB_TOKEN"
+          else
+            if [ -n "$REPO_TOKEN" ]; then
+              echo "Push failed with GITHUB_TOKEN, retrying with provided REPO_TOKEN"
+              git remote set-url origin https://x-access-token:${REPO_TOKEN}@github.com/${{ github.repository }}.git
+              git push
+            else
+              echo "Push failed and no REPO_TOKEN provided. See repository Actions settings and branch protection rules." >&2
+              exit 1
+            fi
+          fi
