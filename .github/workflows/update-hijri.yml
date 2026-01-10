@@ -25,9 +25,12 @@ jobs:
       - name: Fetch Hijri date
         run: npm run fetch
 
+      - name: Fetch Hijri month calendar
+        run: npm run fetch-month
+
       - name: Commit and push
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add api/hijri.json
+          git add api/hijri.json api/hijri-month.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update Hijri date - $(date)" && git push)

@@ -2,7 +2,8 @@
   "name": "hijri-api",
   "version": "1.0.0",
   "scripts": {
-    "fetch": "node api/index.js"
+    "fetch": "node api/index.js",
+    "fetch-month": "node api/fetch-month.js"
   },
   "dependencies": {
     "puppeteer": "^21.0.0",
