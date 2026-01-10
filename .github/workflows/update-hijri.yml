@@ -5,8 +5,12 @@ permissions:
 
 on:
   schedule:
-    # Run every hour
-    - cron: '0 * * * *'
+    # Run 5 times daily at key SL prayer times
+    - cron: '30 7 * * *'   # 1:00 PM SL (after Dhuhr)
+    - cron: '30 10 * * *'  # 4:00 PM SL (after Asr)
+    - cron: '30 14 * * *'  # 8:00 PM SL (after Maghrib/Isha)
+    - cron: '30 18 * * *'  # 12:00 AM SL (midnight)
+    - cron: '30 22 * * *'  # 4:00 AM SL (early morning)
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
