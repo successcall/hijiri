@@ -35,6 +35,43 @@
             color: #e74c3c;
             display: none;
         }
+
+        /* Month view styles */
+        .month {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .month h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.1em;
+            color: #34495e;
+        }
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .weekday {
+            font-size: 0.85em;
+            color: #95a5a6;
+            text-align: center;
+            padding: 6px 4px;
+        }
+        .day {
+            background: #ecf0f1;
+            padding: 10px 6px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        .hijri-day { font-weight: 700; font-size: 1.05em; color: #2c3e50; }
+        .gregorian { font-size: 0.8em; color: #7f8c8d; margin-top: 4px; }
+        .day.today { background: #2ecc71; color: #fff; box-shadow: 0 2px 6px rgba(46,204,113,0.2); }
+
+        @media (max-width: 480px) {
+            .month-grid { grid-template-columns: repeat(4, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -45,6 +82,12 @@
         <div id="hijri-date" class="hijri-date"></div>
         <div id="gregorian-date" class="gregorian-date"></div>
         <p>Last updated: <span id="last-updated"></span></p>
+
+        <!-- Month view -->
+        <div id="month" class="month">
+            <h2 id="month-title"></h2>
+            <div id="month-grid" class="month-grid" aria-live="polite"></div>
+        </div>
     </div>
 
     <script>
@@ -78,11 +121,57 @@
             }
         }
 
-        // Load date on page load
+        async function loadHijriMonth() {
+            const grid = document.getElementById('month-grid');
+            const title = document.getElementById('month-title');
+            try {
+                const res = await fetch('./api/hijri-month.json');
+                if (!res.ok) throw new Error('Failed to fetch month');
+                const data = await res.json();
+
+                title.textContent = `${data.hijriMonth} ${data.hijriYear} — ${data.totalDays} days`;
+
+                // Clear grid
+                grid.innerHTML = '';
+
+                // Optionally show weekday headers
+                const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                const headerRow = document.createElement('div');
+                headerRow.className = 'weekday-row';
+                weekdays.forEach(w => {
+                    const el = document.createElement('div');
+                    el.className = 'weekday';
+                    el.textContent = w;
+                    headerRow.appendChild(el);
+                });
+                grid.appendChild(headerRow);
+
+                // Render each day
+                data.dates.forEach(d => {
+                    const day = document.createElement('div');
+                    day.className = 'day';
+                    if (d.hijriDay === data.currentHijriDay) {
+                        day.classList.add('today');
+                    }
+                    day.title = d.gregorianDate;
+                    day.innerHTML = `<div class="hijri-day">${d.hijriDay}</div><div class="gregorian">${d.gregorianMonth} ${d.gregorianDay}</div>`;
+                    grid.appendChild(day);
+                });
+
+            } catch (err) {
+                console.error('Error loading month:', err);
+                title.textContent = 'Error loading month';
+                grid.innerHTML = '';
+            }
+        }
+
+        // Load on page load
         loadHijriDate();
+        loadHijriMonth();
 
         // Refresh every hour
         setInterval(loadHijriDate, 3600000);
+        setInterval(loadHijriMonth, 3600000);
     </script>
 </body>
 </html>
