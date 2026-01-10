@@ -7,7 +7,7 @@ A simple API that fetches the current Hijri date from ACJU website and serves it
 The API provides the current Hijri date at:
 
 ```
-https://yourusername.github.io/fetch-acju-calender/api/hijri.json
+https://musabibnusiraj.github.io/hijiri/api/hijri.json
 ```
 
 ## Response Format
