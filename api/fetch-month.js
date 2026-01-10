@@ -20,7 +20,9 @@ async function fetchHijriMonth() {
       waitUntil: 'networkidle2',
     });
 
-    await page.waitForTimeout(2000);
+    // Wait for calendar to load
+    await page.waitForSelector('#calendar', { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(3000); // Extra wait for dynamic content
 
     const monthData = await page.evaluate(() => {
       // Get month and year from the specific ID
@@ -34,38 +36,37 @@ async function fetchHijriMonth() {
       const gregorianMatch = todayHeading.match(/Today:\s*(.+)/);
       const currentDate = gregorianMatch ? gregorianMatch[1] : todayHeading;
 
-      // Extract calendar dates - if calendar extraction fails, use calculation
-      const dates = [];
-      
-      // Month start dates and total days (based on ACJU calendar)
-      const monthInfo = {
-        'Rajab': { start: new Date(2025, 11, 23), days: 30 },
-        'Sha\'baan': { start: new Date(2026, 0, 22), days: 30 },
-        'Shabaan': { start: new Date(2026, 0, 22), days: 30 },
-        'Ramadaan': { start: new Date(2026, 1, 20), days: 30 },
-        'Ramadan': { start: new Date(2026, 1, 20), days: 30 },
-        'Shawwaal': { start: new Date(2026, 2, 22), days: 29 },
-        'Shawwal': { start: new Date(2026, 2, 22), days: 29 },
-        'Dhul Qa\'dah': { start: new Date(2026, 3, 21), days: 30 },
-        'Dhul Qadah': { start: new Date(2026, 3, 21), days: 30 },
-        'Dhul Hijjah': { start: new Date(2026, 4, 20), days: 29 },
-        'Muharram': { start: new Date(2026, 5, 19), days: 30 },
-        'Safar': { start: new Date(2026, 6, 18), days: 30 },
-        'Rabi\'ul Awwal': { start: new Date(2026, 7, 17), days: 30 },
-        'Rabeeul Awwal': { start: new Date(2026, 7, 17), days: 30 },
-        'Rabee`unith Thaani': { start: new Date(2026, 8, 15), days: 29 },
-        'Jumaadal Oola': { start: new Date(2026, 9, 15), days: 30 },
-        'Jumaadal Aakhirah': { start: new Date(2026, 10, 13), days: 29 },
-      };
-      
-      const info = monthInfo[hijriMonth] || { start: new Date(), days: 29 };
+      // Try to determine actual month length from the calendar
+      const bodyText = document.body.textContent || '';
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December'];
       
-      // Generate all dates for the month
-      for (let day = 1; day <= info.days; day++) {
-        const gregorianDate = new Date(info.start);
-        gregorianDate.setDate(info.start.getDate() + (day - 1));
+      // Check if calendar has day 30 or stops at day 29
+      const has30 = /\b30(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{1,2}\b/i.test(bodyText);
+      const totalDays = has30 ? 30 : 29;
+      
+      // Find current Hijri day to calculate start date
+      const today = new Date();
+      const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const todayMonth = monthAbbr[today.getMonth()];
+      const todayDay = today.getDate();
+      const searchPattern = `${todayMonth}${todayDay}`;
+      
+      let currentHijriDay = 1;
+      const hijriDayMatch = bodyText.match(new RegExp(`(\\d{1,2})${searchPattern}`, 'i'));
+      if (hijriDayMatch) {
+        currentHijriDay = parseInt(hijriDayMatch[1]);
+      }
+      
+      // Calculate the start date of the current Hijri month
+      const monthStartDate = new Date(today);
+      monthStartDate.setDate(today.getDate() - (currentHijriDay - 1));
+
+      // Generate all dates for the month based on actual length (29 or 30)
+      const dates = [];
+      for (let day = 1; day <= totalDays; day++) {
+        const gregorianDate = new Date(monthStartDate);
+        gregorianDate.setDate(monthStartDate.getDate() + (day - 1));
         
         const gMonth = monthNames[gregorianDate.getMonth()];
         const gDay = gregorianDate.getDate();
@@ -85,22 +86,12 @@ async function fetchHijriMonth() {
 
       function getArabicName(month) {
         const arabicNames = {
-          'Muharram': 'المحرم',
-          'Safar': 'صفر',
-          'Rabi\'ul Awwal': 'ربيع الأول',
-          'Rabeeul Awwal': 'ربيع الأول',
-          'Rabee`unith Thaani': 'ربيع الثاني',
-          'Jumaadal Oola': 'جمادى الأولى',
-          'Jumaadal Aakhirah': 'جمادى الآخرة',
-          'Rajab': 'رجب',
-          'Sha\'baan': 'شعبان',
-          'Shabaan': 'شعبان',
-          'Ramadaan': 'رمضان',
-          'Ramadan': 'رمضان',
-          'Shawwaal': 'شوال',
-          'Shawwal': 'شوال',
-          'Dhul Qa\'dah': 'ذو القعدة',
-          'Dhul Qadah': 'ذو القعدة',
+          'Muharram': 'المحرم', 'Safar': 'صفر', 'Rabi\'ul Awwal': 'ربيع الأول',
+          'Rabeeul Awwal': 'ربيع الأول', 'Rabee`unith Thaani': 'ربيع الثاني',
+          'Jumaadal Oola': 'جمادى الأولى', 'Jumaadal Aakhirah': 'جمادى الآخرة',
+          'Rajab': 'رجب', 'Sha\'baan': 'شعبان', 'Shabaan': 'شعبان',
+          'Ramadaan': 'رمضان', 'Ramadan': 'رمضان', 'Shawwaal': 'شوال',
+          'Shawwal': 'شوال', 'Dhul Qa\'dah': 'ذو القعدة', 'Dhul Qadah': 'ذو القعدة',
           'Dhul Hijjah': 'ذو الحجة'
         };
         return arabicNames[month] || month;
