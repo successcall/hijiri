@@ -43,9 +43,17 @@ async function fetchHijriMonth() {
       
       // Check if calendar has day 30 or stops at day 29
       const has30 = /\b30(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{1,2}\b/i.test(bodyText);
-      const totalDays = has30 ? 30 : 29;
+      const has29 = /\b29(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{1,2}\b/i.test(bodyText);
       
-      // Find current Hijri day to calculate start date
+      // Determine total days based on what's shown on the ACJU calendar
+      let totalDays = 29; // Default
+      if (has30) {
+        totalDays = 30;
+      } else if (has29) {
+        totalDays = 29;
+      }
+      
+      // Find current Hijri day - try from page first, fallback to calculation
       const today = new Date();
       const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const todayMonth = monthAbbr[today.getMonth()];
@@ -56,13 +64,27 @@ async function fetchHijriMonth() {
       const hijriDayMatch = bodyText.match(new RegExp(`(\\d{1,2})${searchPattern}`, 'i'));
       if (hijriDayMatch) {
         currentHijriDay = parseInt(hijriDayMatch[1]);
+      } else {
+        // Fallback: Calculate based on known month start dates
+        const monthStartDates = {
+          'Rajab': new Date(2025, 11, 23), // Dec 23, 2025
+          'Sha\'baan': new Date(2026, 0, 22),
+          'Shabaan': new Date(2026, 0, 22),
+          'Ramadaan': new Date(2026, 1, 20),
+          'Ramadan': new Date(2026, 1, 20),
+        };
+        const startDate = monthStartDates[hijriMonth];
+        if (startDate) {
+          const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+          currentHijriDay = diffDays > 0 ? diffDays : 1;
+        }
       }
       
       // Calculate the start date of the current Hijri month
       const monthStartDate = new Date(today);
       monthStartDate.setDate(today.getDate() - (currentHijriDay - 1));
 
-      // Generate all dates for the month based on actual length (29 or 30)
+      // Generate dates from day 1 to totalDays (29 or 30 based on ACJU calendar)
       const dates = [];
       for (let day = 1; day <= totalDays; day++) {
         const gregorianDate = new Date(monthStartDate);
@@ -102,7 +124,8 @@ async function fetchHijriMonth() {
         hijriYear: hijriYear,
         monthNameArabic: getArabicName(hijriMonth),
         currentDate: currentDate,
-        totalDays: dates.length,
+        currentHijriDay: currentHijriDay,
+        totalDays: totalDays,
         dates: dates,
         fetchedAt: new Date().toISOString(),
       };
