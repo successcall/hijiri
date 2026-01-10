@@ -7,7 +7,7 @@ A simple API that fetches the current Hijri date from ACJU website and serves it
 The API provides the current Hijri date at:
 
 ```
-https://musabibnusiraj.github.io/hijiri/api/hijri.json
+https://successcall.github.io/hijiri/api/hijri.json
 ```
 
 ## Response Format
@@ -21,12 +21,42 @@ https://musabibnusiraj.github.io/hijiri/api/hijri.json
 }
 ```
 
+## Full Month Calendar API
+
+Get all dates for the current Hijri month:
+
+```
+https://successcall.github.io/hijiri/api/hijri-month.json
+```
+
+### Response Format for Month API
+
+```json
+{
+  "hijriMonth": "Rajab",
+  "hijriYear": "1447",
+  "monthNameArabic": "رجب",
+  "currentDate": "Saturday, January 10, 2026",
+  "totalDays": 30,
+  "dates": [
+    {
+      "hijriDay": 1,
+      "gregorianDate": "December 23, 2025",
+      "gregorianMonth": "December",
+      "gregorianDay": 23,
+      "gregorianYear": 2025
+    }
+  ],
+  "fetchedAt": "2026-01-10T..."
+}
+```
+
 ## How it works
 
-- GitHub Actions runs daily at midnight UTC
+- GitHub Actions runs **every hour** on the hour UTC
 - Fetches the latest Hijri date from https://www.acju.lk/calenders-en/
-- Updates the `api/hijri.json` file
-- Commits and pushes the changes
+- Updates the `api/hijri.json` and `api/hijri-month.json` files
+- Commits and pushes the changes automatically
 
 ## Manual Update
 
@@ -49,3 +79,5 @@ This is automatically deployed via GitHub Pages. Make sure to enable GitHub Page
 1. Go to Settings → Pages
 2. Select "Deploy from a branch"
 3. Choose "main" branch and "/ (root)" folder
+
+Your repository: https://github.com/successcall/hijiri
