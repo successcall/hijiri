@@ -1,0 +1,12 @@
+{
+  "name": "hijri-api",
+  "version": "1.0.0",
+  "scripts": {
+    "fetch": "node api/index.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijri Calendar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .calendar {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .hijri-date {
+            font-size: 2em;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+        .gregorian-date {
+            font-size: 1.2em;
+            color: #7f8c8d;
+        }
+        .loading {
+            display: none;
+        }
+        .error {
+            color: #e74c3c;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar">
+        <h1>Hijri Calendar</h1>
+        <div id="loading" class="loading">Loading...</div>
+        <div id="error" class="error">Error loading date</div>
+        <div id="hijri-date" class="hijri-date"></div>
+        <div id="gregorian-date" class="gregorian-date"></div>
+        <p>Last updated: <span id="last-updated"></span></p>
+    </div>
+
+    <script>
+        async function loadHijriDate() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const hijriDate = document.getElementById('hijri-date');
+            const gregorianDate = document.getElementById('gregorian-date');
+            const lastUpdated = document.getElementById('last-updated');
+
+            loading.style.display = 'block';
+            error.style.display = 'none';
+
+            try {
+                const response = await fetch('./api/hijri.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+
+                hijriDate.textContent = `${data.hijriDay} ${data.hijriMonth}`;
+                gregorianDate.textContent = data.gregorianDate;
+                lastUpdated.textContent = new Date(data.fetchedAt).toLocaleString();
+
+                loading.style.display = 'none';
+            } catch (err) {
+                console.error('Error:', err);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                error.textContent = 'Error loading date. Please try again later.';
+            }
+        }
+
+        // Load date on page load
+        loadHijriDate();
+
+        // Refresh every hour
+        setInterval(loadHijriDate, 3600000);
+    </script>
+</body>
+</html>
