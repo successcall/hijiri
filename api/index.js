@@ -23,7 +23,10 @@ async function fetchHijriDate() {
     await page.waitForTimeout(2000); // Wait for dynamic content
 
     const hijriData = await page.evaluate(() => {
+      // Get Hijri month from h1
       const hijriMonth = document.querySelector('h1')?.innerText?.trim() || 'Unknown';
+      
+      // Get today's Gregorian date from h2
       const h2s = document.querySelectorAll('h2');
       let todayHeading = 'Unknown';
       for (const h2 of h2s) {
@@ -35,16 +38,73 @@ async function fetchHijriDate() {
       const gregorianMatch = todayHeading.match(/Today:\s*(.+)/);
       const gregorianDate = gregorianMatch ? gregorianMatch[1] : todayHeading;
       
-      // Calculate approximate Hijri day based on month start
-      // Rajab 1447 started around Dec 23, 2025
-      const now = new Date();
-      const rajabStart = new Date(2025, 11, 23); // Dec 23, 2025
-      const diffDays = Math.floor((now - rajabStart) / (1000 * 60 * 60 * 24)) + 1;
-      const hijriDay = diffDays.toString();
+      // Extract Hijri day from calendar by finding today's date
+      const today = new Date();
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = monthNames[today.getMonth()];
+      const day = today.getDate();
+      const searchPattern = `${month}${day}`;
+      
+      let hijriDay = 'Unknown';
+      
+      // Try to find the Hijri day from the page text
+      const bodyText = document.body.textContent || '';
+      
+      // Pattern: find number before the date (e.g., "19Jan10" -> hijri day is 19)
+      const regex = new RegExp(`(\\d+)${searchPattern}`, 'g');
+      const matches = bodyText.match(regex);
+      
+      console.log('Search pattern:', searchPattern);
+      console.log('Matches found:', matches);
+      
+      console.log('Search pattern:', searchPattern);
+      console.log('Matches found:', matches);
+      
+      if (matches && matches.length > 0) {
+        // Extract the number from the first match
+        const match = matches[0].match(/^(\d+)/);
+        if (match) {
+          hijriDay = match[1];
+        }
+      }
+      
+      // Fallback: Calculate from month start if scraping fails
+      if (hijriDay === 'Unknown') {
+        // Define Hijri month start dates
+        // These are approximate and should be updated based on moon sighting
+        const monthStarts = {
+          'Rajab': new Date(2025, 11, 23), // Dec 23, 2025
+          'Sha\'baan': new Date(2026, 0, 22), // Jan 22, 2026
+          'Shabaan': new Date(2026, 0, 22), // Alternative spelling
+          'Ramadaan': new Date(2026, 1, 20), // Feb 20, 2026
+          'Ramadan': new Date(2026, 1, 20), // Alternative spelling
+          'Shawwaal': new Date(2026, 2, 22), // Mar 22, 2026
+          'Shawwal': new Date(2026, 2, 22), // Alternative spelling
+          'Dhul Qa\'dah': new Date(2026, 3, 21), // Apr 21, 2026
+          'Dhul Qadah': new Date(2026, 3, 21), // Alternative spelling
+          'Dhul Hijjah': new Date(2026, 4, 20), // May 20, 2026
+          'Muharram': new Date(2026, 5, 19), // Jun 19, 2026
+          'Safar': new Date(2026, 6, 18), // Jul 18, 2026
+          'Rabi\'ul Awwal': new Date(2026, 7, 17), // Aug 17, 2026
+          'Rabeeul Awwal': new Date(2026, 7, 17), // Alternative spelling
+          'Rabee`unith Thaani': new Date(2026, 8, 15), // Sep 15, 2026
+          'Jumaadal Oola': new Date(2026, 9, 15), // Oct 15, 2026
+          'Jumaadal Aakhirah': new Date(2026, 10, 13), // Nov 13, 2026
+        };
+        
+        const cleanMonth = hijriMonth.replace(/ \d{4}/g, '').trim();
+        const monthStart = monthStarts[cleanMonth];
+        
+        if (monthStart) {
+          const now = new Date();
+          const diffDays = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+          hijriDay = diffDays > 0 ? diffDays.toString() : '1';
+        }
+      }
 
       return {
         hijriDay: hijriDay,
-        hijriMonth: hijriMonth.replace(' 1447', '').replace('1447', ''), // Remove year
+        hijriMonth: hijriMonth.replace(' 1447', '').replace(' 1446', '').replace('1447', '').replace('1446', '').trim(),
         gregorianDate: gregorianDate,
         fetchedAt: new Date().toISOString(),
       };
