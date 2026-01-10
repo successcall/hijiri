@@ -23,53 +23,65 @@ async function fetchHijriMonth() {
     await page.waitForTimeout(2000);
 
     const monthData = await page.evaluate(() => {
-      // Get month and year
-      const h1Text = document.querySelector('h1')?.innerText?.trim() || 'Unknown';
+      // Get month and year from the specific ID
+      const h1Text = document.getElementById('hijri-month-name')?.innerText?.trim() || 'Unknown';
       const hijriMonth = h1Text.replace(/ \d{4}/g, '').trim();
+      const yearMatch = h1Text.match(/\d{4}/);
+      const hijriYear = yearMatch ? yearMatch[0] : '1447';
       
-      // Get today's date
-      const h2s = document.querySelectorAll('h2');
-      let todayHeading = 'Unknown';
-      for (const h2 of h2s) {
-        if (h2.textContent.includes('Today:')) {
-          todayHeading = h2.textContent.trim();
-          break;
-        }
-      }
+      // Get today's date from the specific ID
+      const todayHeading = document.getElementById('gregorian-month-name')?.innerText?.trim() || 'Unknown';
       const gregorianMatch = todayHeading.match(/Today:\s*(.+)/);
       const currentDate = gregorianMatch ? gregorianMatch[1] : todayHeading;
 
-      // Hijri month information with approximate days
+      // Extract calendar dates - if calendar extraction fails, use calculation
+      const dates = [];
+      
+      // Month start dates and total days (based on ACJU calendar)
       const monthInfo = {
-        'Muharram': 29,
-        'Safar': 30,
-        'Rabi\'ul Awwal': 30,
-        'Rabeeul Awwal': 30,
-        'Rabee`unith Thaani': 29,
-        'Jumaadal Oola': 30,
-        'Jumaadal Aakhirah': 29,
-        'Rajab': 30,
-        'Sha\'baan': 30,
-        'Shabaan': 30,
-        'Ramadaan': 30,
-        'Ramadan': 30,
-        'Shawwaal': 29,
-        'Shawwal': 29,
-        'Dhul Qa\'dah': 30,
-        'Dhul Qadah': 30,
-        'Dhul Hijjah': 29
+        'Rajab': { start: new Date(2025, 11, 23), days: 30 },
+        'Sha\'baan': { start: new Date(2026, 0, 22), days: 30 },
+        'Shabaan': { start: new Date(2026, 0, 22), days: 30 },
+        'Ramadaan': { start: new Date(2026, 1, 20), days: 30 },
+        'Ramadan': { start: new Date(2026, 1, 20), days: 30 },
+        'Shawwaal': { start: new Date(2026, 2, 22), days: 29 },
+        'Shawwal': { start: new Date(2026, 2, 22), days: 29 },
+        'Dhul Qa\'dah': { start: new Date(2026, 3, 21), days: 30 },
+        'Dhul Qadah': { start: new Date(2026, 3, 21), days: 30 },
+        'Dhul Hijjah': { start: new Date(2026, 4, 20), days: 29 },
+        'Muharram': { start: new Date(2026, 5, 19), days: 30 },
+        'Safar': { start: new Date(2026, 6, 18), days: 30 },
+        'Rabi\'ul Awwal': { start: new Date(2026, 7, 17), days: 30 },
+        'Rabeeul Awwal': { start: new Date(2026, 7, 17), days: 30 },
+        'Rabee`unith Thaani': { start: new Date(2026, 8, 15), days: 29 },
+        'Jumaadal Oola': { start: new Date(2026, 9, 15), days: 30 },
+        'Jumaadal Aakhirah': { start: new Date(2026, 10, 13), days: 29 },
       };
-
-      const totalDays = monthInfo[hijriMonth] || 30;
-
-      return {
-        hijriMonth: hijriMonth,
-        hijriYear: h1Text.match(/\d{4}/) ? h1Text.match(/\d{4}/)[0] : '1447',
-        currentDate: currentDate,
-        totalDays: totalDays,
-        monthNameArabic: getArabicName(hijriMonth),
-        fetchedAt: new Date().toISOString(),
-      };
+      
+      const info = monthInfo[hijriMonth] || { start: new Date(), days: 29 };
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+      
+      // Generate all dates for the month
+      for (let day = 1; day <= info.days; day++) {
+        const gregorianDate = new Date(info.start);
+        gregorianDate.setDate(info.start.getDate() + (day - 1));
+        
+        const gMonth = monthNames[gregorianDate.getMonth()];
+        const gDay = gregorianDate.getDate();
+        const gYear = gregorianDate.getFullYear();
+        
+        dates.push({
+          hijriDay: day,
+          gregorianDate: `${gMonth} ${gDay}, ${gYear}`,
+          gregorianMonth: gMonth,
+          gregorianDay: gDay,
+          gregorianYear: gYear
+        });
+      }
+      
+      // Sort by Hijri day
+      dates.sort((a, b) => a.hijriDay - b.hijriDay);
 
       function getArabicName(month) {
         const arabicNames = {
@@ -93,6 +105,16 @@ async function fetchHijriMonth() {
         };
         return arabicNames[month] || month;
       }
+
+      return {
+        hijriMonth: hijriMonth,
+        hijriYear: hijriYear,
+        monthNameArabic: getArabicName(hijriMonth),
+        currentDate: currentDate,
+        totalDays: dates.length,
+        dates: dates,
+        fetchedAt: new Date().toISOString(),
+      };
     });
 
     await browser.close();
