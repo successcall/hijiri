@@ -5,78 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hijri Calendar</title>
     <style>
+        :root {
+            --bg: #f5f5f5;
+            --surface: #ffffff;
+            --text: #263238;
+            --muted: #7f8c8d;
+            --primary: rgb(126,255,116); /* green */
+            --secondary: rgb(253,227,0); /* yellow */
+            --error: #FC7878;
+            --card-bg: #ffffff;
+            --card-text: #2c3e50;
+        }
+
+        .dark {
+            --bg: #0b0b0b;
+            --surface: #000000;
+            --text: #ffffff;
+            --muted: #b0b6b8;
+            --primary: rgb(126,255,116);
+            --secondary: rgb(253,227,0);
+            --error: #FC7878;
+            --card-bg: #121212;
+            --card-text: #ffffff;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: var(--bg);
+            color: var(--text);
         }
         .calendar {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
             text-align: center;
+            color: var(--card-text);
+        }
+        .controls { display:flex; justify-content:flex-end; gap:8px; align-items:center; }
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.06);
+            padding:6px 10px;
+            border-radius:8px;
+            cursor:pointer;
+            color:var(--card-text);
         }
         .hijri-date {
             font-size: 2em;
-            color: #2c3e50;
-            margin: 20px 0;
+            color: var(--card-text);
+            margin: 14px 0;
         }
         .gregorian-date {
-            font-size: 1.2em;
-            color: #7f8c8d;
+            font-size: 1.05em;
+            color: var(--muted);
         }
-        .loading {
-            display: none;
-        }
-        .error {
-            color: #e74c3c;
-            display: none;
-        }
+        .loading { display: none; }
+        .error { color: var(--error); display: none; }
 
         /* Month view styles */
-        .month {
-            margin-top: 20px;
-            text-align: left;
-        }
-        .month h2 {
-            margin: 0 0 8px 0;
-            font-size: 1.1em;
-            color: #34495e;
-        }
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .weekday {
-            font-size: 0.85em;
-            color: #95a5a6;
-            text-align: center;
-            padding: 6px 4px;
-        }
-        .day {
-            background: #ecf0f1;
-            padding: 10px 6px;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 0.9em;
-        }
-        .hijri-day { font-weight: 700; font-size: 1.05em; color: #2c3e50; }
-        .gregorian { font-size: 0.8em; color: #7f8c8d; margin-top: 4px; }
-        .day.today { background: #2ecc71; color: #fff; box-shadow: 0 2px 6px rgba(46,204,113,0.2); }
+        .month { margin-top: 18px; text-align: left; }
+        .month h2 { margin: 0 0 8px 0; font-size: 1.05em; color: var(--card-text); }
+        .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px; }
+        .weekday-row { display: contents; }
+        .weekday { font-size: 0.78em; color: var(--muted); text-align: center; padding: 6px 4px; }
+        .day { background: rgba(255,255,255,0.03); padding: 10px 6px; border-radius: 8px; text-align: center; font-size: 0.95em; border: 1px solid rgba(0,0,0,0.04); }
+        .hijri-day { font-weight: 700; font-size: 1.05em; color: var(--card-text); }
+        .gregorian { font-size: 0.82em; color: var(--muted); margin-top: 4px; }
+        .day.today { background: var(--primary); color: #022; box-shadow: 0 6px 14px rgba(0,0,0,0.12); transform: translateY(-2px); }
 
-        @media (max-width: 480px) {
-            .month-grid { grid-template-columns: repeat(4, 1fr); }
-        }
+        @media (max-width: 720px) { .month-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 420px) { .month-grid { grid-template-columns: repeat(3, 1fr); } }
     </style>
 </head>
 <body>
     <div class="calendar">
-        <h1>Hijri Calendar</h1>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <h1 style="margin:0">Hijri Calendar</h1>
+            <div class="controls">
+                <button id="theme-toggle" class="theme-toggle" aria-pressed="false">Toggle theme</button>
+            </div>
+        </div>
         <div id="loading" class="loading">Loading...</div>
         <div id="error" class="error">Error loading date</div>
         <div id="hijri-date" class="hijri-date"></div>
@@ -172,6 +184,38 @@
         // Refresh every hour
         setInterval(loadHijriDate, 3600000);
         setInterval(loadHijriMonth, 3600000);
+
+        // Theme handling
+        function applyTheme(name) {
+            if (name === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-toggle').setAttribute('aria-pressed', 'true');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-toggle').setAttribute('aria-pressed', 'false');
+            }
+        }
+
+        function initTheme() {
+            const btn = document.getElementById('theme-toggle');
+            const stored = localStorage.getItem('hijri-theme');
+            if (stored) {
+                applyTheme(stored);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+
+            btn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.contains('dark');
+                const next = isDark ? 'light' : 'dark';
+                applyTheme(next);
+                localStorage.setItem('hijri-theme', next);
+            });
+        }
+
+        initTheme();
     </script>
 </body>
 </html>
