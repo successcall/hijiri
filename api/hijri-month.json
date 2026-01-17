@@ -2,8 +2,8 @@
   "hijriMonth": "Rajab",
   "hijriYear": "1447",
   "monthNameArabic": "رجب",
-  "currentDate": "Saturday, January 17, 2026",
-  "currentHijriDay": 26,
+  "currentDate": "Sunday, January 18, 2026",
+  "currentHijriDay": 27,
   "totalDays": 29,
   "dates": [
     {
@@ -210,5 +210,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-01-17T14:47:50.344Z"
+  "fetchedAt": "2026-01-17T18:52:35.900Z"
 }
