@@ -5,7 +5,9 @@ permissions:
 
 on:
   schedule:
-    - cron: '45 19 * * *'   # 1:15 AM SL daily
+    # Run 2 times daily at key SL prayer times
+    - cron: '30 18 * * *'  # 12:00 AM SL (midnight)
+    - cron: '30 22 * * *'  # 4:00 AM SL (early morning)
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
