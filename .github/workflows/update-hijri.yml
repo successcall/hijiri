@@ -5,18 +5,14 @@ permissions:
 
 on:
   schedule:
-    # Run 5 times daily at key SL prayer times
-    - cron: '30 7 * * *'   # 1:00 PM SL (after Dhuhr)
-    - cron: '30 10 * * *'  # 4:00 PM SL (after Asr)
-    - cron: '30 14 * * *'  # 8:00 PM SL (after Maghrib/Isha)
-    - cron: '30 18 * * *'  # 12:00 AM SL (midnight)
-    - cron: '30 22 * * *'  # 4:00 AM SL (early morning)
+    - cron: '40 7 * * *'   # 1:10 PM SL daily
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    
+    env:
+      TZ: Asia/Colombo  # Set the timezone for the entire job
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -49,7 +45,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Update Hijri date - $(date)"
+          git commit -m "Update Hijri date - $(TZ=Asia/Colombo date)"
 
           # Pull any remote changes first, then push
           git pull --rebase origin main || true
