@@ -36,7 +36,7 @@ async function fetchHijriDate() {
 
       // Get Hijri month from h1
       const hijriMonth = document.querySelector('h1')?.innerText?.trim() || 'Unknown';
-      
+
       // Get today's Gregorian date from h2
       const h2s = document.querySelectorAll('h2');
       let todayHeading = 'Unknown';
@@ -48,28 +48,28 @@ async function fetchHijriDate() {
       }
       const gregorianMatch = todayHeading.match(/Today:\s*(.+)/);
       const gregorianDate = gregorianMatch ? gregorianMatch[1] : todayHeading;
-      
+
       // Extract Hijri day from calendar by finding today's date
       const today = getSLDate();
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const month = monthNames[today.getMonth()];
       const day = today.getDate();
       const searchPattern = `${month}${day}`;
-      
+
       let hijriDay = 'Unknown';
-      
+
       // Try to find the Hijri day from the page text
       const bodyText = document.body.textContent || '';
-      
+
       // Patterns to try
       const patterns = [
         new RegExp(`(\\d+)${searchPattern}`, 'g'), // e.g., 19Jan21
         new RegExp(`(\\d+)\\s*${searchPattern}`, 'g'), // e.g., 19 Jan21
         new RegExp(`(\\d+)\\s*${fullMonthNames[today.getMonth()]} ${day}`, 'gi'), // e.g., 19 January 21
       ];
-      
+
       console.log('Search patterns:', searchPattern, `${fullMonthNames[today.getMonth()]} ${day}`);
-      
+
       for (const regex of patterns) {
         const matches = bodyText.match(regex);
         console.log('Regex:', regex, 'Matches:', matches);
@@ -81,7 +81,7 @@ async function fetchHijriDate() {
           }
         }
       }
-      
+
       // Fallback: Calculate from month start if scraping fails
       if (hijriDay === 'Unknown') {
         // Define Hijri month start dates
@@ -89,6 +89,7 @@ async function fetchHijriDate() {
         const monthStarts = {
           'Rajab': new Date(2025, 11, 23), // Dec 23, 2025
           'Sha\'ban': new Date(2026, 0, 22), // Jan 22, 2026
+          'Sha\'baan': new Date(2026, 0, 22), // Alternative spelling
           'Shabaan': new Date(2026, 0, 22), // Alternative spelling
           'Ramadaan': new Date(2026, 1, 20), // Feb 20, 2026
           'Ramadan': new Date(2026, 1, 20), // Alternative spelling
@@ -105,10 +106,10 @@ async function fetchHijriDate() {
           'Jumaadal Oola': new Date(2026, 9, 15), // Oct 15, 2026
           'Jumaadal Aakhirah': new Date(2026, 10, 13), // Nov 13, 2026
         };
-        
+
         const cleanMonth = hijriMonth.replace(/ \d{4}/g, '').trim();
         const monthStart = monthStarts[cleanMonth];
-        
+
         if (monthStart) {
           const now = getSLDate();
           const diffDays = Math.floor((now - monthStart) / (1000 * 60 * 60 * 24)) + 1;
