@@ -82,7 +82,7 @@ async function fetchHijriDate() {
         // These are approximate and should be updated based on moon sighting
         const monthStarts = {
           'Rajab': new Date(2025, 11, 23), // Dec 23, 2025
-          'Sha\'baan': new Date(2026, 0, 22), // Jan 22, 2026
+          'Sha\'ban': new Date(2026, 0, 22), // Jan 22, 2026
           'Shabaan': new Date(2026, 0, 22), // Alternative spelling
           'Ramadaan': new Date(2026, 1, 20), // Feb 20, 2026
           'Ramadan': new Date(2026, 1, 20), // Alternative spelling
