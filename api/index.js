@@ -31,9 +31,6 @@ async function fetchHijriDate() {
         return slTime;
       }
 
-      const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
       // Get Hijri month from h1
       const hijriMonth = document.querySelector('h1')?.innerText?.trim() || 'Unknown';
 
@@ -49,48 +46,26 @@ async function fetchHijriDate() {
       const gregorianMatch = todayHeading.match(/Today:\s*(.+)/);
       const gregorianDate = gregorianMatch ? gregorianMatch[1] : todayHeading;
 
-      // Extract Hijri day from calendar by finding today's date
-      const today = getSLDate();
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const month = monthNames[today.getMonth()];
-      const day = today.getDate();
-      const searchPattern = `${month}${day}`;
-
+      // Extract Hijri day from the today's element
+      const todayElement = document.querySelector('#today');
       let hijriDay = 'Unknown';
-
-      // Try to find the Hijri day from the page text
-      const bodyText = document.body.textContent || '';
-
-      // Patterns to try
-      const patterns = [
-        new RegExp(`(\\d+)${searchPattern}`, 'g'), // e.g., 19Jan21
-        new RegExp(`(\\d+)\\s*${searchPattern}`, 'g'), // e.g., 19 Jan21
-        new RegExp(`(\\d+)\\s*${fullMonthNames[today.getMonth()]} ${day}`, 'gi'), // e.g., 19 January 21
-      ];
-
-      console.log('Search patterns:', searchPattern, `${fullMonthNames[today.getMonth()]} ${day}`);
-
-      for (const regex of patterns) {
-        const matches = bodyText.match(regex);
-        console.log('Regex:', regex, 'Matches:', matches);
-        if (matches && matches.length > 0) {
-          const match = matches[0].match(/^(\d+)/) || matches[0].match(/(\d+)/);
-          if (match) {
-            hijriDay = match[1];
-            break;
-          }
+      if (todayElement) {
+        const hijriDateElement = todayElement.querySelector('.hijri-date');
+        if (hijriDateElement) {
+          hijriDay = hijriDateElement.textContent.trim();
         }
       }
 
+      console.log('Extracted Hijri Day:', hijriDay);
       // Fallback: Calculate from month start if scraping fails
       if (hijriDay === 'Unknown') {
         // Define Hijri month start dates
         // These are approximate and should be updated based on moon sighting
         const monthStarts = {
           'Rajab': new Date(2025, 11, 23), // Dec 23, 2025
-          'Sha\'ban': new Date(2026, 0, 22), // Jan 22, 2026
-          'Sha\'baan': new Date(2026, 0, 22), // Alternative spelling
-          'Shabaan': new Date(2026, 0, 22), // Alternative spelling
+          "Sha'ban": new Date(2026, 0, 21), // Jan 21, 2026 (since Jan 22 is day 2)
+          'Sha\'baan': new Date(2026, 0, 21), // Jan 21, 2026
+          'Shabaan': new Date(2026, 0, 21), // Alternative spelling
           'Ramadaan': new Date(2026, 1, 20), // Feb 20, 2026
           'Ramadan': new Date(2026, 1, 20), // Alternative spelling
           'Shawwaal': new Date(2026, 2, 22), // Mar 22, 2026
@@ -107,7 +82,17 @@ async function fetchHijriDate() {
           'Jumaadal Aakhirah': new Date(2026, 10, 13), // Nov 13, 2026
         };
 
-        const cleanMonth = hijriMonth.replace(/ \d{4}/g, '').trim();
+        // Normalize month name for lookup
+        let cleanMonth = hijriMonth.replace(/ \d{4}/g, '').trim();
+        // Map alternative spellings to canonical keys
+        const monthAliases = {
+          "Sha'ban": "Sha'ban",
+          "Sha'baan": "Sha'baan",
+          "Shabaan": "Shabaan"
+        };
+        if (monthAliases[cleanMonth]) {
+          cleanMonth = monthAliases[cleanMonth];
+        }
         const monthStart = monthStarts[cleanMonth];
 
         if (monthStart) {
@@ -119,7 +104,14 @@ async function fetchHijriDate() {
 
       // Format current SL date for display
       const slNow = getSLDate();
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       const formattedSLDate = `${dayNames[slNow.getDay()]}, ${fullMonthNames[slNow.getMonth()]} ${slNow.getDate()}, ${slNow.getFullYear()}`;
+
+      // If hijriDay is 'Unknown', set it to empty string
+      if (hijriDay === 'Unknown') {
+        hijriDay = '';
+      }
 
       return {
         hijriDay: hijriDay,

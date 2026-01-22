@@ -64,21 +64,19 @@ async function fetchHijriMonth() {
       
       // Find current Hijri day - try from page first, fallback to calculation
       const today = getSLDate();
-      const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const todayMonth = monthAbbr[today.getMonth()];
-      const todayDay = today.getDate();
-      const searchPattern = `${todayMonth}${todayDay}`;
-      
       let currentHijriDay = 1;
-      const hijriDayMatch = bodyText.match(new RegExp(`(\\d{1,2})${searchPattern}`, 'i'));
-      if (hijriDayMatch) {
-        currentHijriDay = parseInt(hijriDayMatch[1]);
+      const todayElement = document.querySelector('#today');
+      if (todayElement) {
+        const hijriDateElement = todayElement.querySelector('.hijri-date');
+        if (hijriDateElement) {
+          currentHijriDay = parseInt(hijriDateElement.textContent.trim());
+        }
       } else {
         // Fallback: Calculate based on known month start dates
         const monthStartDates = {
           'Rajab': new Date(2025, 11, 23), // Dec 23, 2025
-          'Sha\'baan': new Date(2026, 0, 22),
-          'Shabaan': new Date(2026, 0, 22),
+          'Sha\'baan': new Date(2026, 0, 21), // Updated: Jan 21, 2026 (since Jan 22 is day 2)
+          'Shabaan': new Date(2026, 0, 21),
           'Ramadaan': new Date(2026, 1, 20),
           'Ramadan': new Date(2026, 1, 20),
         };

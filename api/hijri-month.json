@@ -3,212 +3,212 @@
   "hijriYear": "1447",
   "monthNameArabic": "Sha'ban",
   "currentDate": "Thursday, January 22, 2026",
-  "currentHijriDay": 1,
+  "currentHijriDay": 2,
   "totalDays": 29,
   "dates": [
     {
       "hijriDay": 1,
+      "gregorianDate": "January 21, 2026",
+      "gregorianMonth": "January",
+      "gregorianDay": 21,
+      "gregorianYear": 2026
+    },
+    {
+      "hijriDay": 2,
       "gregorianDate": "January 22, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 22,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 2,
+      "hijriDay": 3,
       "gregorianDate": "January 23, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 23,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 3,
+      "hijriDay": 4,
       "gregorianDate": "January 24, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 24,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 4,
+      "hijriDay": 5,
       "gregorianDate": "January 25, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 25,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 5,
+      "hijriDay": 6,
       "gregorianDate": "January 26, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 26,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 6,
+      "hijriDay": 7,
       "gregorianDate": "January 27, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 27,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 7,
+      "hijriDay": 8,
       "gregorianDate": "January 28, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 28,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 8,
+      "hijriDay": 9,
       "gregorianDate": "January 29, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 29,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 9,
+      "hijriDay": 10,
       "gregorianDate": "January 30, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 30,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 10,
+      "hijriDay": 11,
       "gregorianDate": "January 31, 2026",
       "gregorianMonth": "January",
       "gregorianDay": 31,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 11,
+      "hijriDay": 12,
       "gregorianDate": "February 1, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 1,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 12,
+      "hijriDay": 13,
       "gregorianDate": "February 2, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 2,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 13,
+      "hijriDay": 14,
       "gregorianDate": "February 3, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 3,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 14,
+      "hijriDay": 15,
       "gregorianDate": "February 4, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 4,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 15,
+      "hijriDay": 16,
       "gregorianDate": "February 5, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 5,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 16,
+      "hijriDay": 17,
       "gregorianDate": "February 6, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 6,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 17,
+      "hijriDay": 18,
       "gregorianDate": "February 7, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 7,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 18,
+      "hijriDay": 19,
       "gregorianDate": "February 8, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 8,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 19,
+      "hijriDay": 20,
       "gregorianDate": "February 9, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 9,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 20,
+      "hijriDay": 21,
       "gregorianDate": "February 10, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 10,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 21,
+      "hijriDay": 22,
       "gregorianDate": "February 11, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 11,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 22,
+      "hijriDay": 23,
       "gregorianDate": "February 12, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 12,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 23,
+      "hijriDay": 24,
       "gregorianDate": "February 13, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 13,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 24,
+      "hijriDay": 25,
       "gregorianDate": "February 14, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 14,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 25,
+      "hijriDay": 26,
       "gregorianDate": "February 15, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 15,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 26,
+      "hijriDay": 27,
       "gregorianDate": "February 16, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 16,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 27,
+      "hijriDay": 28,
       "gregorianDate": "February 17, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 17,
       "gregorianYear": 2026
     },
     {
-      "hijriDay": 28,
+      "hijriDay": 29,
       "gregorianDate": "February 18, 2026",
       "gregorianMonth": "February",
       "gregorianDay": 18,
       "gregorianYear": 2026
-    },
-    {
-      "hijriDay": 29,
-      "gregorianDate": "February 19, 2026",
-      "gregorianMonth": "February",
-      "gregorianDay": 19,
-      "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-01-22T09:43:22.509Z"
+  "fetchedAt": "2026-01-22T10:03:12.375Z"
 }
