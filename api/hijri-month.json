@@ -2,8 +2,8 @@
   "hijriMonth": "Sha'ban",
   "hijriYear": "1447",
   "monthNameArabic": "Sha'ban",
-  "currentDate": "Wednesday, February 4, 2026",
-  "currentHijriDay": 15,
+  "currentDate": "Thursday, February 5, 2026",
+  "currentHijriDay": 16,
   "totalDays": 29,
   "dates": [
     {
@@ -210,5 +210,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-02-03T23:00:51.952Z"
+  "fetchedAt": "2026-02-04T19:17:07.595Z"
 }
