@@ -5,6 +5,125 @@ const path = require('path');
 
 puppeteer.use(StealthPlugin());
 
+// Helper: Get current date in Sri Lanka timezone
+function getSLDate() {
+  const now = new Date();
+  const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+  return slTime;
+}
+
+// Check if we should fetch based on Hijri calendar schedule
+async function shouldFetch(currentHijriDay, totalDaysInMonth, currentMonthName) {
+  const slNow = getSLDate();
+  const hour = slNow.getHours();
+  const minute = slNow.getMinutes();
+  
+  console.log(`Current Hijri Day: ${currentHijriDay}, Month: ${currentMonthName}, Total Days: ${totalDaysInMonth}, SL Time: ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+  
+  // Read existing data to check if we already fetched for this month
+  const apiPath = path.join(__dirname, 'hijri-month.json');
+  let existingData = null;
+  try {
+    if (fs.existsSync(apiPath)) {
+      existingData = JSON.parse(fs.readFileSync(apiPath, 'utf8'));
+    }
+  } catch (e) {
+    console.log('No existing data or error reading:', e.message);
+  }
+  
+  // Initial condition: If no file exists, fetch immediately
+  if (!existingData) {
+    console.log('✅ No existing data file - fetching initial data');
+    return true;
+  }
+  
+  const storedMonth = existingData.hijriMonth;
+  const storedDay = existingData.currentHijriDay;
+  const fetchedAt = existingData.fetchedAt ? new Date(existingData.fetchedAt) : null;
+  const hoursSinceFetch = fetchedAt ? (new Date() - fetchedAt) / (1000 * 60 * 60) : 999;
+  
+  console.log(`Stored data: ${storedMonth} day ${storedDay}, fetched ${hoursSinceFetch.toFixed(1)}h ago`);
+  
+  // If we're in the middle of the month (days 2-28), skip
+  if (storedMonth === currentMonthName && currentHijriDay >= 2 && currentHijriDay <= 28) {
+    console.log('⏭️  Middle of month (days 2-28) - no fetch needed');
+    return false;
+  }
+  
+  // Month transition detection - fetch when new month appears
+  if (storedMonth !== currentMonthName) {
+    console.log(`✅ New month detected (stored: ${storedMonth}, current: ${currentMonthName}) - fetching`);
+    return true;
+  }
+  
+  // On days 29, 30, or 1 of SAME month - check for new month data
+  if (currentHijriDay === 29 || currentHijriDay === 30 || currentHijriDay === 1) {
+    // Prevent duplicate fetches within 20 hours
+    if (hoursSinceFetch < 20) {
+      console.log(`⏭️  Transition period day ${currentHijriDay}, but fetched ${hoursSinceFetch.toFixed(1)}h ago - waiting`);
+      return false;
+    }
+    
+    console.log(`✅ Transition period - day ${currentHijriDay}, checking for month update (last fetch ${hoursSinceFetch.toFixed(1)}h ago)`);
+    return true;
+  }
+  
+  console.log('⏭️  No fetch condition met');
+  return false;
+}
+
+async function getCurrentHijriDay() {
+  // Quick check to get current Hijri day without full scrape
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    
+    const page = await browser.newPage();
+    page.setDefaultNavigationTimeout(30000);
+    
+    await page.goto('https://www.acju.lk/calenders-en/', {
+      waitUntil: 'networkidle2',
+    });
+    
+    await page.waitForTimeout(2000);
+    
+    const hijriInfo = await page.evaluate(() => {
+      const todayElement = document.querySelector('#today');
+      let hijriDay = 1;
+      let totalDays = 29;
+      
+      // Get month name
+      const h1Text = document.getElementById('hijri-month-name')?.innerText?.trim() || 
+                     document.querySelector('h1')?.innerText?.trim() || 'Unknown';
+      const hijriMonth = h1Text.replace(/ \d{4}/g, '').trim();
+      
+      if (todayElement) {
+        const hijriDateElement = todayElement.querySelector('.hijri-date');
+        if (hijriDateElement) {
+          hijriDay = parseInt(hijriDateElement.textContent.trim()) || 1;
+        }
+      }
+      
+      // Check if calendar has day 30
+      const bodyText = document.body.textContent || '';
+      const has30 = /\b30(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{1,2}\b/i.test(bodyText);
+      totalDays = has30 ? 30 : 29;
+      
+      return { hijriDay, totalDays, hijriMonth };
+    });
+    
+    await browser.close();
+    return hijriInfo;
+  } catch (error) {
+    console.error('Error getting current Hijri day:', error);
+    if (browser) await browser.close();
+    return { hijriDay: 1, totalDays: 29, hijriMonth: 'Unknown' };
+  }
+}
+
 async function fetchHijriMonth() {
   let browser;
   try {
@@ -159,4 +278,26 @@ async function fetchHijriMonth() {
   }
 }
 
-fetchHijriMonth();
+// Main execution with scheduling logic
+(async () => {
+  try {
+    console.log('🌙 Checking if fetch is needed...');
+    
+    // Get current Hijri day and month
+    const { hijriDay, totalDays, hijriMonth } = await getCurrentHijriDay();
+    
+    // Check if we should fetch
+    const shouldFetchNow = await shouldFetch(hijriDay, totalDays, hijriMonth);
+    
+    if (shouldFetchNow) {
+      console.log('📅 Fetching Hijri month calendar...');
+      await fetchHijriMonth();
+    } else {
+      console.log('✅ No fetch needed at this time');
+      process.exit(0);
+    }
+  } catch (error) {
+    console.error('❌ Error in main execution:', error);
+    process.exit(1);
+  }
+})();

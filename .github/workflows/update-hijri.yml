@@ -5,9 +5,8 @@ permissions:
 
 on:
   schedule:
-    # Run 2 times daily at key SL prayer times
-    - cron: '30 18 * * *'  # 12:00 AM SL (midnight)
-    - cron: '30 22 * * *'  # 4:00 AM SL (early morning)
+    # Run once daily at 01:00 SL time - checks Hijri days 29, 30, or 1 only
+    - cron: '30 19 * * *'  # 01:00 Sri Lanka time
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -29,10 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Fetch Hijri date
-        run: npm run fetch
-
-      - name: Fetch Hijri month calendar
+      - name: Fetch Hijri month calendar (smart schedule)
         run: npm run fetch-month
 
       - name: Commit and push
@@ -41,13 +37,13 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add api/hijri.json api/hijri-month.json
+          git add api/hijri-month.json
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git commit -m "Update Hijri date - $(TZ=Asia/Colombo date)"
+          git commit -m "Update Hijri month calendar - $(TZ=Asia/Colombo date)"
 
           # Pull any remote changes first, then push
           git pull --rebase origin main || true

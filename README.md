@@ -1,27 +1,8 @@
 # Hijri Calendar API
 
-A simple API that fetches the current Hijri date from ACJU website and serves it as JSON.
+A smart API that fetches Hijri month calendar data from ACJU website based on lunar calendar timing.
 
 ## API Endpoint
-
-The API provides the current Hijri date at:
-
-```
-https://successcall.github.io/hijiri/api/hijri.json
-```
-
-## Response Format
-
-```json
-{
-  "hijriDay": "15",
-  "hijriMonth": "Ramadan",
-  "gregorianDate": "January 10, 2026",
-  "fetchedAt": "2026-01-10T00:00:00.000Z"
-}
-```
-
-## Full Month Calendar API
 
 Get all dates for the current Hijri month:
 
@@ -53,10 +34,28 @@ https://successcall.github.io/hijiri/api/hijri-month.json
 
 ## How it works
 
-- GitHub Actions runs **every hour** on the hour UTC
-- Fetches the latest Hijri date from https://www.acju.lk/calenders-en/
-- Updates the `api/hijri.json` and `api/hijri-month.json` files
-- Commits and pushes the changes automatically
+**Smart Hijri Calendar Fetching Logic:**
+
+- GitHub Actions runs **once daily** at 01:00 Sri Lanka time (30 runs/month)
+- Intelligent scheduling based on the **Hijri (lunar) calendar**:
+
+**Initial condition:**
+- Fetches immediately if no data file exists
+
+**Month transition period (Hijri days 29, 30, or 1):**
+- Checks daily for new month data on ACJU website
+- Automatically detects when new month calendar appears
+- Retries once per day until successful (with 20-hour cooldown)
+- Handles both 29-day and 30-day months
+
+**After successful fetch:**
+- Waits quietly during the month (days 2-28)
+- No fetches until next month's day 29
+- Automatically resumes checking at next transition
+
+- Scrapes latest data from https://www.acju.lk/calenders-en/
+- Updates `api/hijri-month.json` with the month's calendar
+- Commits and pushes changes automatically
 
 ## Manual Update
 
@@ -66,11 +65,13 @@ You can trigger the update manually:
 2. Select "Update Hijri Date" workflow
 3. Click "Run workflow"
 
+Note: Manual triggers will check the Hijri schedule and only fetch if appropriate.
+
 ## Local Development
 
 1. Install dependencies: `npm install`
-2. Run the fetch script: `npm run fetch`
-3. The `api/hijri.json` will be updated with the latest data
+2. Run the fetch script: `npm run fetch-month`
+3. The `api/hijri-month.json` will be updated if the Hijri schedule conditions are met
 
 ## Deployment
 

@@ -126,14 +126,16 @@
             error.style.display = 'none';
 
             try {
-                const response = await fetch('./api/hijri.json');
+                // Fetch from month API instead of daily API
+                const response = await fetch('./api/hijri-month.json');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
                 const data = await response.json();
 
-                hijriDate.textContent = `${data.hijriDay} ${data.hijriMonth}`;
-                gregorianDate.textContent = data.gregorianDate;
+                // Extract current day info from monthly data
+                hijriDate.textContent = `${data.currentHijriDay} ${data.hijriMonth}`;
+                gregorianDate.textContent = data.currentDate;
                 lastUpdated.textContent = new Date(data.fetchedAt).toLocaleString();
 
                 loading.style.display = 'none';
