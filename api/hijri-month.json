@@ -2,8 +2,8 @@
   "hijriMonth": "Ramadan",
   "hijriYear": "1447",
   "monthNameArabic": "رمضان",
-  "currentDate": "Thursday, February 19, 2026",
-  "currentHijriDay": 1,
+  "currentDate": "Wednesday, February 25, 2026",
+  "currentHijriDay": 7,
   "totalDays": 29,
   "dates": [
     {
@@ -210,5 +210,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-02-18T19:36:28.811Z"
+  "fetchedAt": "2026-02-24T20:02:20.233Z"
 }
