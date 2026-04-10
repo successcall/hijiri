@@ -2,8 +2,8 @@
   "hijriMonth": "Shawwal",
   "hijriYear": "1447",
   "monthNameArabic": "شوال",
-  "currentDate": "Sunday, March 22, 2026",
-  "currentHijriDay": 2,
+  "currentDate": "Saturday, April 11, 2026",
+  "currentHijriDay": 22,
   "totalDays": 29,
   "dates": [
     {
@@ -210,5 +210,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-03-22T16:03:26.474Z"
+  "fetchedAt": "2026-04-10T20:06:27.254Z"
 }
