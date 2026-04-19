@@ -1,214 +1,214 @@
 {
-  "hijriMonth": "Shawwal",
+  "hijriMonth": "Dhu al-Qi'dah",
   "hijriYear": "1447",
-  "monthNameArabic": "شوال",
-  "currentDate": "Saturday, April 11, 2026",
-  "currentHijriDay": 22,
+  "monthNameArabic": "Dhu al-Qi'dah",
+  "currentDate": "Sunday, April 19, 2026",
+  "currentHijriDay": 1,
   "totalDays": 29,
   "dates": [
     {
       "hijriDay": 1,
-      "gregorianDate": "March 21, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 21,
+      "gregorianDate": "April 19, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 19,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 2,
-      "gregorianDate": "March 22, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 22,
+      "gregorianDate": "April 20, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 20,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 3,
-      "gregorianDate": "March 23, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 23,
+      "gregorianDate": "April 21, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 21,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 4,
-      "gregorianDate": "March 24, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 24,
+      "gregorianDate": "April 22, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 22,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 5,
-      "gregorianDate": "March 25, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 25,
+      "gregorianDate": "April 23, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 23,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 6,
-      "gregorianDate": "March 26, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 26,
+      "gregorianDate": "April 24, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 24,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 7,
-      "gregorianDate": "March 27, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 27,
+      "gregorianDate": "April 25, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 25,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 8,
-      "gregorianDate": "March 28, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 28,
+      "gregorianDate": "April 26, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 26,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 9,
-      "gregorianDate": "March 29, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 29,
+      "gregorianDate": "April 27, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 27,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 10,
-      "gregorianDate": "March 30, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 30,
+      "gregorianDate": "April 28, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 28,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 11,
-      "gregorianDate": "March 31, 2026",
-      "gregorianMonth": "March",
-      "gregorianDay": 31,
+      "gregorianDate": "April 29, 2026",
+      "gregorianMonth": "April",
+      "gregorianDay": 29,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 12,
-      "gregorianDate": "April 1, 2026",
+      "gregorianDate": "April 30, 2026",
       "gregorianMonth": "April",
-      "gregorianDay": 1,
+      "gregorianDay": 30,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 13,
-      "gregorianDate": "April 2, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 2,
+      "gregorianDate": "May 1, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 1,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 14,
-      "gregorianDate": "April 3, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 3,
+      "gregorianDate": "May 2, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 2,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 15,
-      "gregorianDate": "April 4, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 4,
+      "gregorianDate": "May 3, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 3,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 16,
-      "gregorianDate": "April 5, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 5,
+      "gregorianDate": "May 4, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 4,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 17,
-      "gregorianDate": "April 6, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 6,
+      "gregorianDate": "May 5, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 5,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 18,
-      "gregorianDate": "April 7, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 7,
+      "gregorianDate": "May 6, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 6,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 19,
-      "gregorianDate": "April 8, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 8,
+      "gregorianDate": "May 7, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 7,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 20,
-      "gregorianDate": "April 9, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 9,
+      "gregorianDate": "May 8, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 8,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 21,
-      "gregorianDate": "April 10, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 10,
+      "gregorianDate": "May 9, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 9,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 22,
-      "gregorianDate": "April 11, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 11,
+      "gregorianDate": "May 10, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 10,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 23,
-      "gregorianDate": "April 12, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 12,
+      "gregorianDate": "May 11, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 11,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 24,
-      "gregorianDate": "April 13, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 13,
+      "gregorianDate": "May 12, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 12,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 25,
-      "gregorianDate": "April 14, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 14,
+      "gregorianDate": "May 13, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 13,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 26,
-      "gregorianDate": "April 15, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 15,
+      "gregorianDate": "May 14, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 14,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 27,
-      "gregorianDate": "April 16, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 16,
+      "gregorianDate": "May 15, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 15,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 28,
-      "gregorianDate": "April 17, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 17,
+      "gregorianDate": "May 16, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 16,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 29,
-      "gregorianDate": "April 18, 2026",
-      "gregorianMonth": "April",
-      "gregorianDay": 18,
+      "gregorianDate": "May 17, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 17,
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-04-10T20:06:27.254Z"
+  "fetchedAt": "2026-04-19T01:38:18.762Z"
 }
