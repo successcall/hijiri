@@ -86,7 +86,8 @@ function generateNextMonthData(existingData) {
     currentDate:     `${dayNames[tomorrow.getDay()]}, ${monthNames[tomorrow.getMonth()]} ${tomorrow.getDate()}, ${tomorrow.getFullYear()}`,
     currentHijriDay: 1,
     totalDays:       totalDays,
-    provisional:     true,  // will be replaced by ACJU fetch next morning
+    provisional:     true,       // will be replaced by confirmed ACJU fetch
+    previousMonth:   existingData.hijriMonth, // old month — used to detect ACJU update
     dates:           dates,
     fetchedAt:       new Date().toISOString()
   };
@@ -189,7 +190,9 @@ async function getCurrentHijriDay() {
       
       // Count actual day elements in the calendar to determine month length
       const dayElements = document.querySelectorAll('#days .day');
-      totalDays = dayElements.length > 0 ? dayElements.length : 29;
+      // Hijri months are always 29 or 30 days — clamp to avoid stray DOM elements
+      const rawCount = dayElements.length;
+      totalDays = rawCount >= 30 ? 30 : 29;
       
       return { hijriDay, totalDays, hijriMonth };
     });
@@ -250,7 +253,9 @@ async function fetchHijriMonth() {
       // (regex on bodyText is unreliable because hijri day number and gregorian month
       //  are in separate DOM elements and never appear concatenated in text)
       const dayElements = document.querySelectorAll('#days .day');
-      let totalDays = dayElements.length > 0 ? dayElements.length : 29;
+      // Hijri months are always 29 or 30 days — clamp to avoid stray DOM elements
+      const rawCount = dayElements.length;
+      let totalDays = rawCount >= 30 ? 30 : 29;
       
       // Find current Hijri day - try from page first, fallback to calculation
       const today = getSLDate();
@@ -373,8 +378,15 @@ async function fetchHijriMonth() {
       if (isProvisional) {
         console.log(`🌙 Provisional data for ${existingData.hijriMonth} — checking ACJU for confirmation...`);
         const { hijriMonth: acjuMonth } = await getCurrentHijriDay();
-        if (acjuMonth === existingData.hijriMonth) {
-          console.log(`✅ ACJU confirmed ${acjuMonth} — fetching full calendar`);
+        // Compare against the OLD month name (stored as previousMonth) so that
+        // ACJU spelling differences (e.g. 'Dhu al-Hijjah' vs 'Dhul Hijjah')
+        // don't falsely block confirmation.
+        const oldMonth = existingData.previousMonth || '';
+        const acjuMovedOn = oldMonth
+          ? acjuMonth !== oldMonth          // ACJU is no longer on old month
+          : acjuMonth === existingData.hijriMonth; // fallback: exact match
+        if (acjuMovedOn) {
+          console.log(`✅ ACJU confirmed new month (${acjuMonth}) — fetching full calendar`);
           await fetchHijriMonth();
         } else {
           console.log(`⏭️  ACJU still on old month (${acjuMonth}), keeping provisional`);
