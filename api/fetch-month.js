@@ -356,28 +356,50 @@ async function fetchHijriMonth() {
 
     const apiPath = path.join(__dirname, 'hijri-month.json');
 
-    // ── Maghrib transition: generate next month locally ──────────────────────
-    // ACJU still shows the old month after Maghrib, so we must not fetch from
-    // them. Instead we calculate day 1 of the new month from tomorrow's SL date.
-    // The nightly 01:00 SL cron will replace this with confirmed ACJU data.
+    // ── Read existing stored data ─────────────────────────────────────────────
     let existingData = null;
     try {
       if (fs.existsSync(apiPath)) existingData = JSON.parse(fs.readFileSync(apiPath, 'utf8'));
     } catch (e) { /* ignore */ }
 
     if (existingData) {
-      // Only apply Maghrib transition logic on day 30 (30-day months).
-      // For 29-day months, ACJU updates at midnight and normal fetch handles it.
-      const isDay30 = existingData.currentHijriDay === 30;
-      const alreadyGenerated = existingData.provisional === true && existingData.currentHijriDay === 1;
+      const isDay30       = existingData.currentHijriDay === 30 && existingData.totalDays === 30;
+      const isProvisional = existingData.provisional === true;
 
-      if (isDay30 && !alreadyGenerated) {
+      // ── Case 1: Provisional data already written ──────────────────────────
+      // Bypass shouldFetch's 20-hour guard and ask ACJU directly.
+      // As soon as ACJU agrees with our provisional month, fetch the full
+      // confirmed calendar to replace provisional.
+      if (isProvisional) {
+        console.log(`🌙 Provisional data for ${existingData.hijriMonth} — checking ACJU for confirmation...`);
+        const { hijriMonth: acjuMonth } = await getCurrentHijriDay();
+        if (acjuMonth === existingData.hijriMonth) {
+          console.log(`✅ ACJU confirmed ${acjuMonth} — fetching full calendar`);
+          await fetchHijriMonth();
+        } else {
+          console.log(`⏭️  ACJU still on old month (${acjuMonth}), keeping provisional`);
+        }
+        process.exit(0);
+      }
+
+      // ── Case 2: Hijri day 30 (confirmed 30-day month) + past Maghrib ──────
+      // Islamic day begins at Maghrib. On day 30 only, once sunset passes the
+      // new Hijri month has started. Day 29 is left to normal ACJU fetch logic.
+      if (isDay30) {
         const maghrib = await getMaghribSL();
         if (isPastMaghrib(maghrib)) {
-          console.log(`🌙 Past Maghrib on last Hijri day (${existingData.currentHijriDay}/${existingData.totalDays}) - generating next month locally`);
+          // First: check if ACJU already published the new month
+          const { hijriMonth: acjuMonth } = await getCurrentHijriDay();
+          if (acjuMonth !== existingData.hijriMonth) {
+            console.log(`✅ ACJU already shows new month: ${acjuMonth} — fetching full calendar`);
+            await fetchHijriMonth();
+            process.exit(0);
+          }
+          // ACJU still on old month → write provisional; next cron replaces it
+          console.log(`🌙 Past Maghrib on day 30/${existingData.totalDays}, ACJU still old — generating provisional`);
           const nextData = generateNextMonthData(existingData);
           fs.writeFileSync(apiPath, JSON.stringify(nextData, null, 2));
-          console.log(`✅ Generated: ${nextData.hijriMonth} ${nextData.hijriYear} (provisional, ACJU fetch tomorrow)`);
+          console.log(`✅ Generated: ${nextData.hijriMonth} ${nextData.hijriYear} (provisional — confirmed on next cron)`);
           process.exit(0);
         }
       }
