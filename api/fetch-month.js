@@ -35,6 +35,63 @@ function isPastMaghrib(maghribStr) {
   return (sl.getHours() * 60 + sl.getMinutes()) >= (h * 60 + m);
 }
 
+// Hijri month sequence using ACJU transliterations
+const HIJRI_MONTH_SEQUENCE = [
+  "Muharram", "Safar", "Rabi'ul Awwal", "Rabi'uth-Thani",
+  "Jumaadal Oola", "Jumaadal Aakhirah", "Rajab", "Sha'baan",
+  "Ramadaan", "Shawwaal", "Dhu al-Qi'dah", "Dhul Hijjah"
+];
+
+function getNextHijriMonth(monthName, yearStr) {
+  const idx = HIJRI_MONTH_SEQUENCE.indexOf(monthName);
+  const nextIdx = idx === -1 ? 0 : (idx + 1) % 12;
+  const nextYear = (idx === HIJRI_MONTH_SEQUENCE.length - 1)
+    ? String(parseInt(yearStr) + 1)
+    : yearStr;
+  return { month: HIJRI_MONTH_SEQUENCE[nextIdx], year: nextYear };
+}
+
+// Generate next month data locally (ACJU still shows old month after Maghrib)
+function generateNextMonthData(existingData) {
+  const sl = getSLDate();
+  const tomorrow = new Date(sl);
+  tomorrow.setDate(sl.getDate() + 1);
+
+  const { month: nextMonth, year: nextYear } = getNextHijriMonth(
+    existingData.hijriMonth, existingData.hijriYear
+  );
+
+  const monthNames = ['January','February','March','April','May','June',
+                      'July','August','September','October','November','December'];
+  const dayNames   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  const totalDays = 29; // provisional; ACJU confirms 29 or 30 next morning
+  const dates = [];
+  for (let day = 1; day <= totalDays; day++) {
+    const d = new Date(tomorrow);
+    d.setDate(tomorrow.getDate() + (day - 1));
+    dates.push({
+      hijriDay: day,
+      gregorianDate:  `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`,
+      gregorianMonth: monthNames[d.getMonth()],
+      gregorianDay:   d.getDate(),
+      gregorianYear:  d.getFullYear()
+    });
+  }
+
+  return {
+    hijriMonth:      nextMonth,
+    hijriYear:       nextYear,
+    monthNameArabic: nextMonth,
+    currentDate:     `${dayNames[tomorrow.getDay()]}, ${monthNames[tomorrow.getMonth()]} ${tomorrow.getDate()}, ${tomorrow.getFullYear()}`,
+    currentHijriDay: 1,
+    totalDays:       totalDays,
+    provisional:     true,  // will be replaced by ACJU fetch next morning
+    dates:           dates,
+    fetchedAt:       new Date().toISOString()
+  };
+}
+
 // Check if we should fetch based on Hijri calendar schedule
 async function shouldFetch(currentHijriDay, totalDaysInMonth, currentMonthName) {
   const slNow = getSLDate();
@@ -81,18 +138,7 @@ async function shouldFetch(currentHijriDay, totalDaysInMonth, currentMonthName) 
   
   // On days 29, 30, or 1 of SAME month - check for new month data
   if (currentHijriDay === 29 || currentHijriDay === 30 || currentHijriDay === 1) {
-    // After Maghrib on the last day, the new Hijri month has begun in SL time.
-    // ACJU will already show the new month → always fetch regardless of cooldown.
-    const isLastDay = (currentHijriDay >= totalDaysInMonth);
-    if (isLastDay) {
-      const maghrib = await getMaghribSL();
-      if (isPastMaghrib(maghrib)) {
-        console.log(`✅ Past Maghrib on last day (${currentHijriDay}/${totalDaysInMonth}) - new Hijri month has begun, fetching`);
-        return true;
-      }
-    }
-
-    // Prevent duplicate fetches within 20 hours (pre-Maghrib)
+    // Prevent duplicate fetches within 20 hours
     if (hoursSinceFetch < 20) {
       console.log(`⏭️  Transition period day ${currentHijriDay}, but fetched ${hoursSinceFetch.toFixed(1)}h ago - waiting`);
       return false;
@@ -307,15 +353,42 @@ async function fetchHijriMonth() {
 (async () => {
   try {
     console.log('🌙 Checking if fetch is needed...');
-    
-    // Get current Hijri day and month
+
+    const apiPath = path.join(__dirname, 'hijri-month.json');
+
+    // ── Maghrib transition: generate next month locally ──────────────────────
+    // ACJU still shows the old month after Maghrib, so we must not fetch from
+    // them. Instead we calculate day 1 of the new month from tomorrow's SL date.
+    // The nightly 01:00 SL cron will replace this with confirmed ACJU data.
+    let existingData = null;
+    try {
+      if (fs.existsSync(apiPath)) existingData = JSON.parse(fs.readFileSync(apiPath, 'utf8'));
+    } catch (e) { /* ignore */ }
+
+    if (existingData) {
+      // Only apply Maghrib transition logic on day 30 (30-day months).
+      // For 29-day months, ACJU updates at midnight and normal fetch handles it.
+      const isDay30 = existingData.currentHijriDay === 30;
+      const alreadyGenerated = existingData.provisional === true && existingData.currentHijriDay === 1;
+
+      if (isDay30 && !alreadyGenerated) {
+        const maghrib = await getMaghribSL();
+        if (isPastMaghrib(maghrib)) {
+          console.log(`🌙 Past Maghrib on last Hijri day (${existingData.currentHijriDay}/${existingData.totalDays}) - generating next month locally`);
+          const nextData = generateNextMonthData(existingData);
+          fs.writeFileSync(apiPath, JSON.stringify(nextData, null, 2));
+          console.log(`✅ Generated: ${nextData.hijriMonth} ${nextData.hijriYear} (provisional, ACJU fetch tomorrow)`);
+          process.exit(0);
+        }
+      }
+    }
+
+    // ── Normal ACJU fetch logic ───────────────────────────────────────────────
     const { hijriDay, totalDays, hijriMonth } = await getCurrentHijriDay();
-    
-    // Check if we should fetch
     const shouldFetchNow = await shouldFetch(hijriDay, totalDays, hijriMonth);
-    
+
     if (shouldFetchNow) {
-      console.log('📅 Fetching Hijri month calendar...');
+      console.log('📅 Fetching Hijri month calendar from ACJU...');
       await fetchHijriMonth();
     } else {
       console.log('✅ No fetch needed at this time');
