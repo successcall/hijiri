@@ -37,6 +37,9 @@ https://successcall.github.io/hijiri/api/hijri-month.json
 **Smart Hijri Calendar Fetching Logic:**
 
 - GitHub Actions runs **once daily** at 01:00 Sri Lanka time (30 runs/month)
+- **Pre-check optimization:** Reads existing `hijri-month.json` to calculate today's Hijri day
+  - If day 2-28: Exits immediately (saves resources)
+  - If day 29, 30, or 1: Proceeds with fetch check
 - Intelligent scheduling based on the **Hijri (lunar) calendar**:
 
 **Initial condition:**

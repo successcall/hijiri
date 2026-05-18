@@ -28,10 +28,42 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Check if fetch needed (pre-check)
+        id: precheck
+        run: |
+          # Read current Hijri day from existing data and calculate today's day
+          if [ -f api/hijri-month.json ]; then
+            # Calculate today's Hijri day based on the dates in the file
+            TODAY_HIJRI=$(node -e "
+              const data = require('./api/hijri-month.json');
+              const now = new Date();
+              const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+              const todayStr = \`\${['January','February','March','April','May','June','July','August','September','October','November','December'][today.getMonth()]} \${today.getDate()}, \${today.getFullYear()}\`;
+              const match = data.dates.find(d => d.gregorianDate === todayStr);
+              console.log(match ? match.hijriDay : 0);
+            ")
+            
+            echo "Today's Hijri day: $TODAY_HIJRI"
+            
+            # Only proceed if day 29, 30, 1 (transition period) or calculation failed
+            if [ "$TODAY_HIJRI" -ge 29 ] || [ "$TODAY_HIJRI" -eq 1 ] || [ "$TODAY_HIJRI" -eq 0 ]; then
+              echo "should_fetch=true" >> $GITHUB_OUTPUT
+              echo "✅ Transition period detected (day $TODAY_HIJRI) - will fetch"
+            else
+              echo "should_fetch=false" >> $GITHUB_OUTPUT
+              echo "⏭️  Middle of month (day $TODAY_HIJRI) - skipping workflow"
+            fi
+          else
+            echo "should_fetch=true" >> $GITHUB_OUTPUT
+            echo "✅ No data file - will fetch initial data"
+          fi
+
       - name: Fetch Hijri month calendar (smart schedule)
+        if: steps.precheck.outputs.should_fetch == 'true'
         run: npm run fetch-month
 
       - name: Commit and push
+        if: steps.precheck.outputs.should_fetch == 'true'
         env:
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
