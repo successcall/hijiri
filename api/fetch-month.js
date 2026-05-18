@@ -12,6 +12,29 @@ function getSLDate() {
   return slTime;
 }
 
+// Fetch today's Maghrib time for Colombo from aladhan.com
+async function getMaghribSL() {
+  try {
+    const res = await fetch(
+      'https://api.aladhan.com/v1/timingsByCity?city=Colombo&country=Sri+Lanka&method=1'
+    );
+    const json = await res.json();
+    const t = json.data?.timings?.Maghrib || '18:10';
+    console.log(`Maghrib time (Colombo): ${t}`);
+    return t;
+  } catch (e) {
+    console.warn('Could not fetch Maghrib time, using fallback 18:10');
+    return '18:10';
+  }
+}
+
+// Returns true if SL local time has passed the given HH:MM string
+function isPastMaghrib(maghribStr) {
+  const [h, m] = maghribStr.split(':').map(Number);
+  const sl = getSLDate();
+  return (sl.getHours() * 60 + sl.getMinutes()) >= (h * 60 + m);
+}
+
 // Check if we should fetch based on Hijri calendar schedule
 async function shouldFetch(currentHijriDay, totalDaysInMonth, currentMonthName) {
   const slNow = getSLDate();
@@ -58,12 +81,23 @@ async function shouldFetch(currentHijriDay, totalDaysInMonth, currentMonthName) 
   
   // On days 29, 30, or 1 of SAME month - check for new month data
   if (currentHijriDay === 29 || currentHijriDay === 30 || currentHijriDay === 1) {
-    // Prevent duplicate fetches within 20 hours
+    // After Maghrib on the last day, the new Hijri month has begun in SL time.
+    // ACJU will already show the new month → always fetch regardless of cooldown.
+    const isLastDay = (currentHijriDay >= totalDaysInMonth);
+    if (isLastDay) {
+      const maghrib = await getMaghribSL();
+      if (isPastMaghrib(maghrib)) {
+        console.log(`✅ Past Maghrib on last day (${currentHijriDay}/${totalDaysInMonth}) - new Hijri month has begun, fetching`);
+        return true;
+      }
+    }
+
+    // Prevent duplicate fetches within 20 hours (pre-Maghrib)
     if (hoursSinceFetch < 20) {
       console.log(`⏭️  Transition period day ${currentHijriDay}, but fetched ${hoursSinceFetch.toFixed(1)}h ago - waiting`);
       return false;
     }
-    
+
     console.log(`✅ Transition period - day ${currentHijriDay}, checking for month update (last fetch ${hoursSinceFetch.toFixed(1)}h ago)`);
     return true;
   }

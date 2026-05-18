@@ -5,8 +5,10 @@ permissions:
 
 on:
   schedule:
-    # Run once daily at 01:00 SL time - checks Hijri days 29, 30, or 1 only
-    - cron: '30 19 * * *'  # 01:00 Sri Lanka time
+    # 01:00 Sri Lanka time - nightly check for month transitions
+    - cron: '30 19 * * *'
+    # 18:15 Sri Lanka time - Maghrib transition: new Hijri day begins at sunset
+    - cron: '45 12 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:

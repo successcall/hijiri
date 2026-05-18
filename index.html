@@ -115,52 +115,135 @@
     <p id="last-updated-simple" style="text-align:center;margin-top:12px;color:var(--muted);font-size:0.95em;">Last updated: <span id="last-updated"></span></p>
 
     <script>
-        async function loadHijriDate() {
-            const loading = document.getElementById('loading');
-            const error = document.getElementById('error');
-            const hijriDate = document.getElementById('hijri-date');
-            const gregorianDate = document.getElementById('gregorian-date');
-            const lastUpdated = document.getElementById('last-updated');
+        // ── Hijri month sequence (ACJU transliterations) ──────────────────────
+        const HIJRI_NEXT = {
+            "Muharram":          "Safar",
+            "Safar":             "Rabi'ul Awwal",
+            "Rabi'ul Awwal":     "Rabi'uth-Thani",
+            "Rabi'uth-Thani":    "Jumaadal Oola",
+            "Jumaadal Oola":     "Jumaadal Aakhirah",
+            "Jumaadal Aakhirah": "Rajab",
+            "Rajab":             "Sha'baan",
+            "Sha'baan":          "Ramadaan",
+            "Ramadaan":          "Shawwaal",
+            "Shawwaal":          "Dhu al-Qi'dah",
+            "Dhu al-Qi'dah":     "Dhul Hijjah",
+            "Dhul Hijjah":       "Muharram"
+        };
+        const LAST_MONTH = "Dhul Hijjah"; // rolls year over after this
 
-            loading.style.display = 'block';
-            error.style.display = 'none';
+        function getSLNow() {
+            return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+        }
 
+        // Fetch today's Maghrib time for Colombo from aladhan.com
+        async function getMaghribSL() {
             try {
-                // Fetch from month API instead of daily API
-                const response = await fetch('./api/hijri-month.json');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                const data = await response.json();
-
-                // Extract current day info from monthly data
-                hijriDate.textContent = `${data.currentHijriDay} ${data.hijriMonth}`;
-                gregorianDate.textContent = data.currentDate;
-                lastUpdated.textContent = new Date(data.fetchedAt).toLocaleString();
-
-                loading.style.display = 'none';
-            } catch (err) {
-                console.error('Error:', err);
-                loading.style.display = 'none';
-                error.style.display = 'block';
-                error.textContent = 'Error loading date. Please try again later.';
+                const res = await fetch(
+                    'https://api.aladhan.com/v1/timingsByCity?city=Colombo&country=Sri+Lanka&method=1',
+                    { cache: 'force-cache' }
+                );
+                const json = await res.json();
+                return json.data?.timings?.Maghrib || '18:10';
+            } catch (e) {
+                console.warn('Could not fetch Maghrib time, using fallback 18:10');
+                return '18:10';
             }
         }
 
-        async function loadHijriMonth() {
-            const grid = document.getElementById('month-grid');
-            const title = document.getElementById('month-title');
+        function isPastMaghrib(maghribStr) {
+            const [h, m] = maghribStr.split(':').map(Number);
+            const sl = getSLNow();
+            return (sl.getHours() * 60 + sl.getMinutes()) >= (h * 60 + m);
+        }
+
+        async function fetchJSON(bustCache = false) {
+            const url = bustCache
+                ? `./api/hijri-month.json?v=${Date.now()}`
+                : './api/hijri-month.json';
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Failed to fetch');
+            return res.json();
+        }
+
+        // Build a "tomorrow" gregorian string for display
+        function tomorrowGregorianString() {
+            const sl = getSLNow();
+            const tomorrow = new Date(sl);
+            tomorrow.setDate(sl.getDate() + 1);
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['January','February','March','April','May','June',
+                            'July','August','September','October','November','December'];
+            return `${days[tomorrow.getDay()]}, ${months[tomorrow.getMonth()]} ${tomorrow.getDate()}, ${tomorrow.getFullYear()}`;
+        }
+
+        async function loadCalendar() {
+            const loading      = document.getElementById('loading');
+            const errorEl      = document.getElementById('error');
+            const hijriDateEl  = document.getElementById('hijri-date');
+            const gregDateEl   = document.getElementById('gregorian-date');
+            const lastUpdated  = document.getElementById('last-updated');
+            const grid         = document.getElementById('month-grid');
+            const title        = document.getElementById('month-title');
+
+            loading.style.display = 'block';
+            errorEl.style.display = 'none';
+
             try {
-                const res = await fetch('./api/hijri-month.json');
-                if (!res.ok) throw new Error('Failed to fetch month');
-                const data = await res.json();
+                let data = await fetchJSON();
+                lastUpdated.textContent = new Date(data.fetchedAt).toLocaleString();
+
+                const isLastDay = data.currentHijriDay >= data.totalDays;
+
+                // ── Maghrib transition check ──────────────────────────────────
+                if (isLastDay) {
+                    const maghrib = await getMaghribSL();
+                    if (isPastMaghrib(maghrib)) {
+                        // Try cache-busted fetch — Action may have already updated JSON
+                        try {
+                            const fresh = await fetchJSON(true);
+                            // Accept fresh data only if it's truly the new month
+                            if (fresh.hijriMonth !== data.hijriMonth || fresh.currentHijriDay === 1) {
+                                data = fresh;
+                                lastUpdated.textContent = new Date(data.fetchedAt).toLocaleString();
+                            }
+                        } catch (e) { /* keep old data */ }
+
+                        // Still on old month? → show transition state
+                        if (data.currentHijriDay >= data.totalDays) {
+                            const nextMonth = HIJRI_NEXT[data.hijriMonth] || data.hijriMonth;
+                            const nextYear  = data.hijriMonth === LAST_MONTH
+                                ? String(parseInt(data.hijriYear) + 1)
+                                : data.hijriYear;
+
+                            hijriDateEl.textContent = `1 ${nextMonth}`;
+                            gregDateEl.textContent  = tomorrowGregorianString();
+                            loading.style.display   = 'none';
+
+                            title.textContent = `${nextMonth} ${nextYear}`;
+                            grid.innerHTML = `
+                                <div style="grid-column:1/-1;text-align:center;padding:28px 12px;">
+                                    <div style="font-size:2em;margin-bottom:8px;">🌙</div>
+                                    <div style="font-weight:700;font-size:1.1em;color:var(--primary);margin-bottom:6px)">
+                                        New Hijri month has begun
+                                    </div>
+                                    <div style="color:var(--muted);font-size:0.92em;">
+                                        ${nextMonth} ${nextYear} calendar will be available shortly
+                                    </div>
+                                </div>`;
+                            return;
+                        }
+                    }
+                }
+                // ── Normal render ─────────────────────────────────────────────
+
+                hijriDateEl.textContent = `${data.currentHijriDay} ${data.hijriMonth}`;
+                gregDateEl.textContent  = data.currentDate;
+                loading.style.display   = 'none';
 
                 title.textContent = `${data.hijriMonth} ${data.hijriYear}`;
-
-                // Clear grid
                 grid.innerHTML = '';
 
-                // Optionally show weekday headers
                 const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
                 const headerRow = document.createElement('div');
                 headerRow.className = 'weekday-row';
@@ -172,32 +255,28 @@
                 });
                 grid.appendChild(headerRow);
 
-                // Render each day
                 data.dates.forEach(d => {
                     const day = document.createElement('div');
                     day.className = 'day';
-                    if (d.hijriDay === data.currentHijriDay) {
-                        day.classList.add('today');
-                    }
+                    if (d.hijriDay === data.currentHijriDay) day.classList.add('today');
                     day.title = d.gregorianDate;
                     day.innerHTML = `<div class="hijri-day">${d.hijriDay}</div><div class="gregorian">${d.gregorianMonth} ${d.gregorianDay}</div>`;
                     grid.appendChild(day);
                 });
 
             } catch (err) {
-                console.error('Error loading month:', err);
-                title.textContent = 'Error loading month';
-                grid.innerHTML = '';
+                console.error('Error:', err);
+                loading.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.textContent   = 'Error loading date. Please try again later.';
             }
         }
 
         // Load on page load
-        loadHijriDate();
-        loadHijriMonth();
+        loadCalendar();
 
-        // Refresh every hour
-        setInterval(loadHijriDate, 3600000);
-        setInterval(loadHijriMonth, 3600000);
+        // Refresh every 30 minutes (catches Maghrib crossing without full reload)
+        setInterval(loadCalendar, 30 * 60 * 1000);
 
         // Theme handling
         function applyTheme(name) {
