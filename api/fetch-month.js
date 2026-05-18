@@ -107,10 +107,9 @@ async function getCurrentHijriDay() {
         }
       }
       
-      // Check if calendar has day 30
-      const bodyText = document.body.textContent || '';
-      const has30 = /\b30(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{1,2}\b/i.test(bodyText);
-      totalDays = has30 ? 30 : 29;
+      // Count actual day elements in the calendar to determine month length
+      const dayElements = document.querySelectorAll('#days .day');
+      totalDays = dayElements.length > 0 ? dayElements.length : 29;
       
       return { hijriDay, totalDays, hijriMonth };
     });
@@ -164,22 +163,14 @@ async function fetchHijriMonth() {
       const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       const currentDate = `${dayNames[slNow.getDay()]}, ${fullMonthNames[slNow.getMonth()]} ${slNow.getDate()}, ${slNow.getFullYear()}`;
 
-      // Try to determine actual month length from the calendar
-      const bodyText = document.body.textContent || '';
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December'];
       
-      // Check if calendar has day 30 or stops at day 29
-      const has30 = /\b30(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{1,2}\b/i.test(bodyText);
-      const has29 = /\b29(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{1,2}\b/i.test(bodyText);
-      
-      // Determine total days based on what's shown on the ACJU calendar
-      let totalDays = 29; // Default
-      if (has30) {
-        totalDays = 30;
-      } else if (has29) {
-        totalDays = 29;
-      }
+      // Count actual day elements in the calendar to determine month length
+      // (regex on bodyText is unreliable because hijri day number and gregorian month
+      //  are in separate DOM elements and never appear concatenated in text)
+      const dayElements = document.querySelectorAll('#days .day');
+      let totalDays = dayElements.length > 0 ? dayElements.length : 29;
       
       // Find current Hijri day - try from page first, fallback to calculation
       const today = getSLDate();

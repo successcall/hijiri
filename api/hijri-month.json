@@ -4,7 +4,7 @@
   "monthNameArabic": "Dhu al-Qi'dah",
   "currentDate": "Monday, May 18, 2026",
   "currentHijriDay": 30,
-  "totalDays": 29,
+  "totalDays": 30,
   "dates": [
     {
       "hijriDay": 1,
@@ -207,6 +207,13 @@
       "gregorianDate": "May 17, 2026",
       "gregorianMonth": "May",
       "gregorianDay": 17,
+      "gregorianYear": 2026
+    },
+    {
+      "hijriDay": 30,
+      "gregorianDate": "May 18, 2026",
+      "gregorianMonth": "May",
+      "gregorianDay": 18,
       "gregorianYear": 2026
     }
   ],
