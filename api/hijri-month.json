@@ -2,8 +2,8 @@
   "hijriMonth": "Dhu al-Hijjah",
   "hijriYear": "1447",
   "monthNameArabic": "Dhu al-Hijjah",
-  "currentDate": "Tuesday, May 19, 2026",
-  "currentHijriDay": 1,
+  "currentDate": "Tuesday, June 16, 2026",
+  "currentHijriDay": 29,
   "totalDays": 30,
   "dates": [
     {
@@ -217,5 +217,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-05-18T18:43:38.654Z"
+  "fetchedAt": "2026-06-15T19:43:20.875Z"
 }
