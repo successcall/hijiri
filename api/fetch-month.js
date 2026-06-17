@@ -39,13 +39,31 @@ function isPastMaghrib(maghribStr) {
 const HIJRI_MONTH_SEQUENCE = [
   "Muharram", "Safar", "Rabi'ul Awwal", "Rabi'uth-Thani",
   "Jumaadal Oola", "Jumaadal Aakhirah", "Rajab", "Sha'baan",
-  "Ramadaan", "Shawwaal", "Dhu al-Qi'dah", "Dhul Hijjah"
+  "Ramadaan", "Shawwaal", "Dhu al-Qi'dah", "Dhu al-Hijjah"
 ];
 
+// Normalize variant spellings ACJU has used across years
+function normalizeHijriMonth(name) {
+  const aliases = {
+    "Dhul Hijjah": "Dhu al-Hijjah",
+    "Dhul Qa'dah": "Dhu al-Qi'dah",
+    "Dhul Qadah": "Dhu al-Qi'dah",
+    "Shabaan": "Sha'baan",
+    "Ramadan": "Ramadaan",
+    "Shawwal": "Shawwaal",
+    "Rabeeul Awwal": "Rabi'ul Awwal",
+    "Rabi'uth Thani": "Rabi'uth-Thani",
+  };
+  return aliases[name] || name;
+}
+
 function getNextHijriMonth(monthName, yearStr) {
-  const idx = HIJRI_MONTH_SEQUENCE.indexOf(monthName);
+  const normalized = normalizeHijriMonth(monthName);
+  const idx = HIJRI_MONTH_SEQUENCE.indexOf(normalized);
+  const isLastMonth = idx === HIJRI_MONTH_SEQUENCE.length - 1;
+  // If unrecognized, assume it could be the last month to be safe (increment year)
   const nextIdx = idx === -1 ? 0 : (idx + 1) % 12;
-  const nextYear = (idx === HIJRI_MONTH_SEQUENCE.length - 1)
+  const nextYear = (isLastMonth || idx === -1)
     ? String(parseInt(yearStr) + 1)
     : yearStr;
   return { month: HIJRI_MONTH_SEQUENCE[nextIdx], year: nextYear };

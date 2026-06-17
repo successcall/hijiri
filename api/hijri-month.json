@@ -1,10 +1,12 @@
 {
-  "hijriMonth": "Dhu al-Hijjah",
-  "hijriYear": "1447",
-  "monthNameArabic": "Dhu al-Hijjah",
+  "hijriMonth": "Muharram",
+  "hijriYear": "1448",
+  "monthNameArabic": "المحرم",
   "currentDate": "Wednesday, June 17, 2026",
   "currentHijriDay": 1,
-  "totalDays": 30,
+  "totalDays": 29,
+  "provisional": true,
+  "previousMonth": "Dhu al-Hijjah",
   "dates": [
     {
       "hijriDay": 1,
@@ -208,14 +210,7 @@
       "gregorianMonth": "July",
       "gregorianDay": 15,
       "gregorianYear": 2026
-    },
-    {
-      "hijriDay": 30,
-      "gregorianDate": "July 16, 2026",
-      "gregorianMonth": "July",
-      "gregorianDay": 16,
-      "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-06-16T22:03:57.119Z"
+  "fetchedAt": "2026-06-17T00:00:00.000Z"
 }
