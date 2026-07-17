@@ -315,7 +315,7 @@ async function fetchHijriMonth() {
       if (todayElement) {
         const hijriDateElement = todayElement.querySelector('.hijri-date');
         if (hijriDateElement) {
-          currentHijriDay = parseInt(hijriDateElement.textContent.trim());
+          currentHijriDay = parseInt(hijriDateElement.textContent.trim()) || 1;
         }
       } else {
         // Fallback: Calculate based on known month start dates
