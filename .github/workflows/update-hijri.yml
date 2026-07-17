@@ -38,6 +38,8 @@ jobs:
             # Calculate today's Hijri day based on the dates in the file
             TODAY_HIJRI=$(node -e "
               const data = require('./api/hijri-month.json');
+              // Provisional data must be re-checked every run until ACJU confirms
+              if (data.provisional) { console.log(0); process.exit(0); }
               const now = new Date();
               const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
               const todayStr = \`\${['January','February','March','April','May','June','July','August','September','October','November','December'][today.getMonth()]} \${today.getDate()}, \${today.getFullYear()}\`;
@@ -47,7 +49,7 @@ jobs:
             
             echo "Today's Hijri day: $TODAY_HIJRI"
             
-            # Only proceed if day 29, 30, 1 (transition period) or calculation failed
+            # Only proceed if day 29, 30, 1 (transition period), provisional data, or calculation failed
             if [ "$TODAY_HIJRI" -ge 29 ] || [ "$TODAY_HIJRI" -eq 1 ] || [ "$TODAY_HIJRI" -eq 0 ]; then
               echo "should_fetch=true" >> $GITHUB_OUTPUT
               echo "✅ Transition period detected (day $TODAY_HIJRI) - will fetch"

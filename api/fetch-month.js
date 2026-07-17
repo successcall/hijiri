@@ -42,6 +42,23 @@ const HIJRI_MONTH_SEQUENCE = [
   "Ramadaan", "Shawwaal", "Dhu al-Qi'dah", "Dhu al-Hijjah"
 ];
 
+// Arabic names keyed by the normalized transliterations above
+const ARABIC_NAMES = {
+  "Muharram": "المحرم", "Safar": "صفر", "Rabi'ul Awwal": "ربيع الأول",
+  "Rabi'uth-Thani": "ربيع الثاني", "Jumaadal Oola": "جمادى الأولى",
+  "Jumaadal Aakhirah": "جمادى الآخرة", "Rajab": "رجب", "Sha'baan": "شعبان",
+  "Ramadaan": "رمضان", "Shawwaal": "شوال", "Dhu al-Qi'dah": "ذو القعدة",
+  "Dhu al-Hijjah": "ذو الحجة"
+};
+
+// Last Gregorian date covered by the stored month (midnight SL), or null
+function getStoredMonthEnd(existingData) {
+  const last = existingData?.dates?.[existingData.dates.length - 1];
+  if (!last?.gregorianDate) return null;
+  const d = new Date(`${last.gregorianDate} 00:00:00`);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 // Normalize variant spellings ACJU has used across years
 function normalizeHijriMonth(name) {
   const aliases = {
@@ -69,11 +86,19 @@ function getNextHijriMonth(monthName, yearStr) {
   return { month: HIJRI_MONTH_SEQUENCE[nextIdx], year: nextYear };
 }
 
-// Generate next month data locally (ACJU still shows old month after Maghrib)
-function generateNextMonthData(existingData) {
+// Generate next month data locally (ACJU still shows old month).
+// startDate: Gregorian date of day 1 of the new Hijri month. Defaults to
+// tomorrow (used when generating right after Maghrib on day 30).
+function generateNextMonthData(existingData, startDate) {
   const sl = getSLDate();
-  const tomorrow = new Date(sl);
-  tomorrow.setDate(sl.getDate() + 1);
+  let dayOne;
+  if (startDate) {
+    dayOne = new Date(startDate);
+  } else {
+    dayOne = new Date(sl);
+    dayOne.setDate(sl.getDate() + 1);
+  }
+  dayOne.setHours(0, 0, 0, 0);
 
   const { month: nextMonth, year: nextYear } = getNextHijriMonth(
     existingData.hijriMonth, existingData.hijriYear
@@ -86,8 +111,8 @@ function generateNextMonthData(existingData) {
   const totalDays = 29; // provisional; ACJU confirms 29 or 30 next morning
   const dates = [];
   for (let day = 1; day <= totalDays; day++) {
-    const d = new Date(tomorrow);
-    d.setDate(tomorrow.getDate() + (day - 1));
+    const d = new Date(dayOne);
+    d.setDate(dayOne.getDate() + (day - 1));
     dates.push({
       hijriDay: day,
       gregorianDate:  `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`,
@@ -97,12 +122,20 @@ function generateNextMonthData(existingData) {
     });
   }
 
+  // currentHijriDay relative to day 1 (day 1 may be today or in the past
+  // if a cron run was missed)
+  const todayMid = new Date(sl);
+  todayMid.setHours(0, 0, 0, 0);
+  const ref = todayMid > dayOne ? todayMid : dayOne;
+  const currentHijriDay = Math.min(totalDays,
+    Math.max(1, Math.floor((ref - dayOne) / (24 * 60 * 60 * 1000)) + 1));
+
   return {
     hijriMonth:      nextMonth,
     hijriYear:       nextYear,
-    monthNameArabic: nextMonth,
-    currentDate:     `${dayNames[tomorrow.getDay()]}, ${monthNames[tomorrow.getMonth()]} ${tomorrow.getDate()}, ${tomorrow.getFullYear()}`,
-    currentHijriDay: 1,
+    monthNameArabic: ARABIC_NAMES[nextMonth] || nextMonth,
+    currentDate:     `${dayNames[ref.getDay()]}, ${monthNames[ref.getMonth()]} ${ref.getDate()}, ${ref.getFullYear()}`,
+    currentHijriDay: currentHijriDay,
     totalDays:       totalDays,
     provisional:     true,       // will be replaced by confirmed ACJU fetch
     previousMonth:   existingData.hijriMonth, // old month — used to detect ACJU update
@@ -346,6 +379,7 @@ async function fetchHijriMonth() {
         currentDate: currentDate,
         currentHijriDay: currentHijriDay,
         totalDays: totalDays,
+        todayFound: !!todayElement,
         dates: dates,
         fetchedAt: new Date().toISOString(),
       };
@@ -353,8 +387,37 @@ async function fetchHijriMonth() {
 
     await browser.close();
 
-    // Save to JSON file
     const apiPath = path.join(__dirname, 'hijri-month.json');
+    let existing = null;
+    try {
+      if (fs.existsSync(apiPath)) existing = JSON.parse(fs.readFileSync(apiPath, 'utf8'));
+    } catch (e) { /* ignore */ }
+
+    // Guard: no "#today" marker means today's Gregorian date is not inside the
+    // month ACJU is displaying — the site hasn't moved to the new month yet.
+    // Rebuilding from that page would restart the old month at today's date
+    // (this corrupted the data on Jul 16, 2026). Keep existing data instead,
+    // and if the stored month has already ended, roll to a provisional next
+    // month based on the Gregorian date the old month ended.
+    if (!monthData.todayFound && existing) {
+      console.warn(`⚠️  ACJU page has no today marker (still showing ${monthData.hijriMonth}) — not overwriting`);
+      const monthEnd = getStoredMonthEnd(existing);
+      const todaySL = getSLDate();
+      todaySL.setHours(0, 0, 0, 0);
+      if (!existing.provisional && monthEnd && todaySL > monthEnd) {
+        const dayOne = new Date(monthEnd);
+        dayOne.setDate(monthEnd.getDate() + 1);
+        const nextData = generateNextMonthData(existing, dayOne);
+        fs.writeFileSync(apiPath, JSON.stringify(nextData, null, 2));
+        console.log(`✅ Stored month ended — generated provisional ${nextData.hijriMonth} ${nextData.hijriYear} starting ${nextData.dates[0].gregorianDate}`);
+        return nextData;
+      }
+      return existing;
+    }
+
+    delete monthData.todayFound;
+
+    // Save to JSON file
     fs.writeFileSync(apiPath, JSON.stringify(monthData, null, 2));
 
     console.log('✅ Hijri month calendar updated:', {
@@ -386,8 +449,14 @@ async function fetchHijriMonth() {
     } catch (e) { /* ignore */ }
 
     if (existingData) {
-      const isDay30       = existingData.currentHijriDay === 30 && existingData.totalDays === 30;
       const isProvisional = existingData.provisional === true;
+      const monthEnd = getStoredMonthEnd(existingData);
+      const todaySL = getSLDate();
+      todaySL.setHours(0, 0, 0, 0);
+      // Derive "last day of a 30-day month" from the stored dates —
+      // currentHijriDay is frozen at fetch time and goes stale mid-month.
+      const isDay30 = existingData.totalDays === 30 &&
+                      monthEnd && todaySL.getTime() === monthEnd.getTime();
 
       // ── Case 1: Provisional data already written ──────────────────────────
       // Bypass shouldFetch's 20-hour guard and ask ACJU directly.
@@ -400,9 +469,9 @@ async function fetchHijriMonth() {
         // ACJU spelling differences (e.g. 'Dhu al-Hijjah' vs 'Dhul Hijjah')
         // don't falsely block confirmation.
         const oldMonth = existingData.previousMonth || '';
-        const acjuMovedOn = oldMonth
-          ? acjuMonth !== oldMonth          // ACJU is no longer on old month
-          : acjuMonth === existingData.hijriMonth; // fallback: exact match
+        const acjuMovedOn = acjuMonth !== 'Unknown' && (oldMonth
+          ? normalizeHijriMonth(acjuMonth) !== normalizeHijriMonth(oldMonth) // ACJU no longer on old month
+          : normalizeHijriMonth(acjuMonth) === normalizeHijriMonth(existingData.hijriMonth)); // fallback: exact match
         if (acjuMovedOn) {
           console.log(`✅ ACJU confirmed new month (${acjuMonth}) — fetching full calendar`);
           await fetchHijriMonth();
@@ -412,7 +481,29 @@ async function fetchHijriMonth() {
         process.exit(0);
       }
 
-      // ── Case 2: Hijri day 30 (confirmed 30-day month) + past Maghrib ──────
+      // ── Case 2: Stored month has already ended per its own calendar ───────
+      // Today's Gregorian date is past the last date of the stored month, so
+      // a new Hijri month has definitely begun regardless of what ACJU shows.
+      // If ACJU published the new month, fetch it; otherwise roll forward
+      // provisionally from the Gregorian date the old month ended.
+      if (monthEnd && todaySL > monthEnd) {
+        console.log(`🌙 Stored ${existingData.hijriMonth} ended (last date in data has passed) — checking ACJU...`);
+        const { hijriMonth: acjuMonth } = await getCurrentHijriDay();
+        if (acjuMonth !== 'Unknown' &&
+            normalizeHijriMonth(acjuMonth) !== normalizeHijriMonth(existingData.hijriMonth)) {
+          console.log(`✅ ACJU shows new month (${acjuMonth}) — fetching full calendar`);
+          await fetchHijriMonth();
+        } else {
+          const dayOne = new Date(monthEnd);
+          dayOne.setDate(monthEnd.getDate() + 1);
+          const nextData = generateNextMonthData(existingData, dayOne);
+          fs.writeFileSync(apiPath, JSON.stringify(nextData, null, 2));
+          console.log(`✅ ACJU not updated (${acjuMonth}) — provisional ${nextData.hijriMonth} ${nextData.hijriYear} starting ${nextData.dates[0].gregorianDate}`);
+        }
+        process.exit(0);
+      }
+
+      // ── Case 3: Hijri day 30 (confirmed 30-day month) + past Maghrib ──────
       // Islamic day begins at Maghrib. On day 30 only, once sunset passes the
       // new Hijri month has started. Day 29 is left to normal ACJU fetch logic.
       if (isDay30) {
@@ -420,7 +511,8 @@ async function fetchHijriMonth() {
         if (isPastMaghrib(maghrib)) {
           // First: check if ACJU already published the new month
           const { hijriMonth: acjuMonth } = await getCurrentHijriDay();
-          if (acjuMonth !== existingData.hijriMonth) {
+          if (acjuMonth !== 'Unknown' &&
+              normalizeHijriMonth(acjuMonth) !== normalizeHijriMonth(existingData.hijriMonth)) {
             console.log(`✅ ACJU already shows new month: ${acjuMonth} — fetching full calendar`);
             await fetchHijriMonth();
             process.exit(0);
