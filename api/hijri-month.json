@@ -2,11 +2,9 @@
   "hijriMonth": "Safar",
   "hijriYear": "1448",
   "monthNameArabic": "صفر",
-  "currentDate": "Friday, July 17, 2026",
-  "currentHijriDay": 1,
-  "totalDays": 29,
-  "provisional": true,
-  "previousMonth": "Muharram",
+  "currentDate": "Thursday, August 6, 2026",
+  "currentHijriDay": 21,
+  "totalDays": 30,
   "dates": [
     {
       "hijriDay": 1,
@@ -210,7 +208,14 @@
       "gregorianMonth": "August",
       "gregorianDay": 14,
       "gregorianYear": 2026
+    },
+    {
+      "hijriDay": 30,
+      "gregorianDate": "August 15, 2026",
+      "gregorianMonth": "August",
+      "gregorianDay": 15,
+      "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-07-17T12:54:51.125Z"
+  "fetchedAt": "2026-08-06T15:04:34.758Z"
 }
