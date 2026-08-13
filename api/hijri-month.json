@@ -2,8 +2,8 @@
   "hijriMonth": "Safar",
   "hijriYear": "1448",
   "monthNameArabic": "صفر",
-  "currentDate": "Thursday, August 6, 2026",
-  "currentHijriDay": 21,
+  "currentDate": "Friday, August 14, 2026",
+  "currentHijriDay": 29,
   "totalDays": 30,
   "dates": [
     {
@@ -217,5 +217,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-08-06T15:04:34.758Z"
+  "fetchedAt": "2026-08-13T20:08:35.729Z"
 }
