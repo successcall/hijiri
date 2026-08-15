@@ -5,10 +5,10 @@ permissions:
 
 on:
   schedule:
-    # 01:00 Sri Lanka time - nightly check for month transitions
-    - cron: '30 19 * * *'
-    # 18:15 Sri Lanka time - Maghrib transition: new Hijri day begins at sunset
-    - cron: '45 12 * * *'
+    # Every 2 hours. The fetch is a single HTTPS request and commits only when
+    # the data actually changes, so a new month is picked up within 2 hours of
+    # ACJU publishing it instead of waiting for the next nightly run.
+    - cron: '0 */2 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -18,56 +18,20 @@ jobs:
       TZ: Asia/Colombo  # Set the timezone for the entire job
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Check if fetch needed (pre-check)
-        id: precheck
-        run: |
-          # Read current Hijri day from existing data and calculate today's day
-          if [ -f api/hijri-month.json ]; then
-            # Calculate today's Hijri day based on the dates in the file
-            TODAY_HIJRI=$(node -e "
-              const data = require('./api/hijri-month.json');
-              // Provisional data must be re-checked every run until ACJU confirms
-              if (data.provisional) { console.log(0); process.exit(0); }
-              const now = new Date();
-              const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
-              const todayStr = \`\${['January','February','March','April','May','June','July','August','September','October','November','December'][today.getMonth()]} \${today.getDate()}, \${today.getFullYear()}\`;
-              const match = data.dates.find(d => d.gregorianDate === todayStr);
-              console.log(match ? match.hijriDay : 0);
-            ")
-            
-            echo "Today's Hijri day: $TODAY_HIJRI"
-            
-            # Only proceed if day 29, 30, 1 (transition period), provisional data, or calculation failed
-            if [ "$TODAY_HIJRI" -ge 29 ] || [ "$TODAY_HIJRI" -eq 1 ] || [ "$TODAY_HIJRI" -eq 0 ]; then
-              echo "should_fetch=true" >> $GITHUB_OUTPUT
-              echo "✅ Transition period detected (day $TODAY_HIJRI) - will fetch"
-            else
-              echo "should_fetch=false" >> $GITHUB_OUTPUT
-              echo "⏭️  Middle of month (day $TODAY_HIJRI) - skipping workflow"
-            fi
-          else
-            echo "should_fetch=true" >> $GITHUB_OUTPUT
-            echo "✅ No data file - will fetch initial data"
-          fi
-
-      - name: Fetch Hijri month calendar (smart schedule)
-        if: steps.precheck.outputs.should_fetch == 'true'
+      # No `npm install` — the fetch script has no dependencies.
+      - name: Fetch Hijri month calendar
         run: npm run fetch-month
 
       - name: Commit and push
-        if: steps.precheck.outputs.should_fetch == 'true'
         env:
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
