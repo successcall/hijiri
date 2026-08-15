@@ -14,51 +14,67 @@ https://successcall.github.io/hijiri/api/hijri-month.json
 
 ```json
 {
-  "hijriMonth": "Rajab",
-  "hijriYear": "1447",
-  "monthNameArabic": "رجب",
-  "currentDate": "Saturday, January 10, 2026",
-  "totalDays": 30,
+  "hijriMonth": "Rabi' al-Awwal",
+  "hijriYear": "1448",
+  "monthNameArabic": "ربيع الأول",
+  "startDate": "2026-08-15",
+  "endDate": "2026-09-12",
+  "currentDate": "Saturday, August 15, 2026",
+  "currentHijriDay": 1,
+  "totalDays": 29,
   "dates": [
     {
       "hijriDay": 1,
-      "gregorianDate": "December 23, 2025",
-      "gregorianMonth": "December",
-      "gregorianDay": 23,
-      "gregorianYear": 2025
+      "gregorianDate": "August 15, 2026",
+      "gregorianMonth": "August",
+      "gregorianDay": 15,
+      "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-01-10T..."
+  "fetchedAt": "2026-08-15T..."
 }
 ```
 
+`provisional: true` is present only while ACJU has yet to publish a month that
+has already begun (see below).
+
+**Read `dates` / `startDate` / `endDate`, not `currentHijriDay`.** The two
+`current*` fields are a snapshot from the last update and say nothing about
+sunset — clients should look today's Gregorian date up in `dates` and apply
+their own Maghrib rule.
+
 ## How it works
 
-**Smart Hijri Calendar Fetching Logic:**
+ACJU's calendar page ships the month's boundaries as a plain `<script>`
+variable, which is what its own calendar is drawn from:
 
-- GitHub Actions runs **once daily** at 01:00 Sri Lanka time (30 runs/month)
-- **Pre-check optimization:** Reads existing `hijri-month.json` to calculate today's Hijri day
-  - If day 2-28: Exits immediately (saves resources)
-  - If day 29, 30, or 1: Proceeds with fetch check
-- Intelligent scheduling based on the **Hijri (lunar) calendar**:
+```js
+var hijriCalendarData = {"startDate":"2026-08-15","endDate":"2026-09-12", ...}
+```
 
-**Initial condition:**
-- Fetches immediately if no data file exists
+`api/fetch-month.js` reads those two dates over a single HTTPS request — no
+browser, no DOM scraping, and no guessing how many days the month has. The
+month name comes from the same Hijri month table acju.lk labels its heading
+with, looked up a week into the month so the couple of days that the
+astronomical calendar drifts from the moon sighting cannot change the answer.
 
-**Month transition period (Hijri days 29, 30, or 1):**
-- Checks daily for new month data on ACJU website
-- Automatically detects when new month calendar appears
-- Retries once per day until successful (with 20-hour cooldown)
-- Handles both 29-day and 30-day months
+**Schedule:** GitHub Actions runs every 2 hours and commits only when the data
+actually changes, so a new month appears in the API within two hours of ACJU
+publishing it.
 
-**After successful fetch:**
-- Waits quietly during the month (days 2-28)
-- No fetches until next month's day 29
-- Automatically resumes checking at next transition
+**Sighting corrections:** ACJU publishes an *estimated* `endDate` at the start
+of a month and shortens it when the crescent is sighted a day early. Every run
+re-reads both dates, so a 30-day month becoming 29 days is picked up
+automatically.
 
-- Scrapes latest data from https://www.acju.lk/calenders-en/
-- Updates `api/hijri-month.json` with the month's calendar
-- Commits and pushes changes automatically
+**When ACJU is behind:** if the month on ACJU's page has already ended and the
+new one is not published yet, the script rolls forward a *provisional* 29-day
+month starting the day after the confirmed one ended, flagged with
+`"provisional": true`. Each later run replaces it as soon as ACJU catches up.
+
+**When ACJU's page can't be read** (network failure, layout change, or a month
+length that isn't 29 or 30 days) the run fails loudly and leaves the stored
+data untouched, rather than overwriting it with a guess.
 
 ## Manual Update
 
@@ -68,13 +84,13 @@ You can trigger the update manually:
 2. Select "Update Hijri Date" workflow
 3. Click "Run workflow"
 
-Note: Manual triggers will check the Hijri schedule and only fetch if appropriate.
-
 ## Local Development
 
-1. Install dependencies: `npm install`
-2. Run the fetch script: `npm run fetch-month`
-3. The `api/hijri-month.json` will be updated if the Hijri schedule conditions are met
+Run the fetch script: `npm run fetch-month`
+
+It needs Node 18+ and no dependencies — `api/hijri-month.json` is rewritten
+only if the data changed. (`npm install` is only needed for the legacy
+single-date `api/index.js` script, which nothing consumes.)
 
 ## Deployment
 
