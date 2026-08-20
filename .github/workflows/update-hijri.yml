@@ -28,8 +28,27 @@ jobs:
           node-version: '20'
 
       # No `npm install` — the fetch script has no dependencies.
+      #
+      # continue-on-error so a degraded run still reaches the commit step: when
+      # ACJU cannot be read at a month boundary the script writes provisional
+      # dates and exits non-zero, and those dates are worth publishing. The
+      # "Report fetch status" step below turns that into a red job afterwards.
       - name: Fetch Hijri month calendar
+        id: fetch
+        continue-on-error: true
         run: npm run fetch-month
+
+      # Only written when the page was reachable but unparseable — the case that
+      # is impossible to reproduce locally, since acju.lk serves runners
+      # differently than a browser in Sri Lanka.
+      - name: Upload unparseable ACJU response
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: acju-debug-html
+          path: acju-debug.html
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Commit and push
         env:
@@ -62,3 +81,12 @@ jobs:
               exit 1
             fi
           fi
+
+      # The stored month covers ~29 days, so a failed read only matters at a
+      # month boundary — the script exits 0 while the data on disk is still
+      # valid. Reaching here with a failure means it is not.
+      - name: Report fetch status
+        if: steps.fetch.outcome == 'failure'
+        run: |
+          echo "::error::Could not read the Hijri month from ACJU and the stored data no longer covers today." >&2
+          exit 1
