@@ -4,8 +4,8 @@
   "monthNameArabic": "ربيع الثاني",
   "startDate": "2026-09-13",
   "endDate": "2026-10-11",
-  "currentDate": "Tuesday, September 15, 2026",
-  "currentHijriDay": 3,
+  "currentDate": "Wednesday, September 16, 2026",
+  "currentHijriDay": 4,
   "totalDays": 29,
   "dates": [
     {
@@ -212,5 +212,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-09-14T21:20:14.296Z"
+  "fetchedAt": "2026-09-15T20:46:38.271Z"
 }
