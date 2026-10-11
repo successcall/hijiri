@@ -1,216 +1,217 @@
 {
-  "hijriMonth": "Rabi' al-Thani",
+  "hijriMonth": "Jumada al-Awwal",
   "hijriYear": "1448",
-  "monthNameArabic": "ربيع الثاني",
-  "startDate": "2026-09-13",
-  "endDate": "2026-10-11",
-  "currentDate": "Sunday, October 11, 2026",
-  "currentHijriDay": 29,
+  "monthNameArabic": "جمادى الأولى",
+  "startDate": "2026-10-12",
+  "endDate": "2026-11-09",
+  "currentDate": "Monday, October 12, 2026",
+  "currentHijriDay": 1,
   "totalDays": 29,
   "dates": [
     {
       "hijriDay": 1,
-      "gregorianDate": "September 13, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 13,
+      "gregorianDate": "October 12, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 12,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 2,
-      "gregorianDate": "September 14, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 14,
+      "gregorianDate": "October 13, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 13,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 3,
-      "gregorianDate": "September 15, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 15,
+      "gregorianDate": "October 14, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 14,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 4,
-      "gregorianDate": "September 16, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 16,
+      "gregorianDate": "October 15, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 15,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 5,
-      "gregorianDate": "September 17, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 17,
+      "gregorianDate": "October 16, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 16,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 6,
-      "gregorianDate": "September 18, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 18,
+      "gregorianDate": "October 17, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 17,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 7,
-      "gregorianDate": "September 19, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 19,
+      "gregorianDate": "October 18, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 18,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 8,
-      "gregorianDate": "September 20, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 20,
+      "gregorianDate": "October 19, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 19,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 9,
-      "gregorianDate": "September 21, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 21,
+      "gregorianDate": "October 20, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 20,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 10,
-      "gregorianDate": "September 22, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 22,
+      "gregorianDate": "October 21, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 21,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 11,
-      "gregorianDate": "September 23, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 23,
+      "gregorianDate": "October 22, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 22,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 12,
-      "gregorianDate": "September 24, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 24,
+      "gregorianDate": "October 23, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 23,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 13,
-      "gregorianDate": "September 25, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 25,
+      "gregorianDate": "October 24, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 24,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 14,
-      "gregorianDate": "September 26, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 26,
+      "gregorianDate": "October 25, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 25,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 15,
-      "gregorianDate": "September 27, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 27,
+      "gregorianDate": "October 26, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 26,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 16,
-      "gregorianDate": "September 28, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 28,
+      "gregorianDate": "October 27, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 27,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 17,
-      "gregorianDate": "September 29, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 29,
+      "gregorianDate": "October 28, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 28,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 18,
-      "gregorianDate": "September 30, 2026",
-      "gregorianMonth": "September",
-      "gregorianDay": 30,
+      "gregorianDate": "October 29, 2026",
+      "gregorianMonth": "October",
+      "gregorianDay": 29,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 19,
-      "gregorianDate": "October 1, 2026",
+      "gregorianDate": "October 30, 2026",
       "gregorianMonth": "October",
-      "gregorianDay": 1,
+      "gregorianDay": 30,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 20,
-      "gregorianDate": "October 2, 2026",
+      "gregorianDate": "October 31, 2026",
       "gregorianMonth": "October",
-      "gregorianDay": 2,
+      "gregorianDay": 31,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 21,
-      "gregorianDate": "October 3, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 3,
+      "gregorianDate": "November 1, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 1,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 22,
-      "gregorianDate": "October 4, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 4,
+      "gregorianDate": "November 2, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 2,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 23,
-      "gregorianDate": "October 5, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 5,
+      "gregorianDate": "November 3, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 3,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 24,
-      "gregorianDate": "October 6, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 6,
+      "gregorianDate": "November 4, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 4,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 25,
-      "gregorianDate": "October 7, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 7,
+      "gregorianDate": "November 5, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 5,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 26,
-      "gregorianDate": "October 8, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 8,
+      "gregorianDate": "November 6, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 6,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 27,
-      "gregorianDate": "October 9, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 9,
+      "gregorianDate": "November 7, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 7,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 28,
-      "gregorianDate": "October 10, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 10,
+      "gregorianDate": "November 8, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 8,
       "gregorianYear": 2026
     },
     {
       "hijriDay": 29,
-      "gregorianDate": "October 11, 2026",
-      "gregorianMonth": "October",
-      "gregorianDay": 11,
+      "gregorianDate": "November 9, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 9,
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-10-10T21:01:56.086Z"
+  "fetchedAt": "2026-10-11T21:23:02.289Z",
+  "provisional": true
 }
