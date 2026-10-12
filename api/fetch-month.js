@@ -366,14 +366,14 @@ function buildMonth(startDate, endDate, { provisional = false } = {}) {
 
 /**
  * ACJU has not published the new month yet, but the old one has ended. Roll
- * forward from the day after it ended with a provisional 29-day month, which
+ * forward from the day after it ended with a provisional 30-day month, which
  * the next run replaces as soon as ACJU catches up.
  */
 function buildProvisionalMonth(lastConfirmedEnd, today) {
   let start = addDays(lastConfirmedEnd, 1);
   // Guard against a long outage: keep stepping until the month covers today.
-  while (daysBetween(start, today) >= 29) start = addDays(start, 29);
-  return buildMonth(start, addDays(start, 28), { provisional: true });
+  while (daysBetween(start, today) >= 30) start = addDays(start, 30);
+  return buildMonth(start, addDays(start, 29), { provisional: true });
 }
 
 function readExisting() {

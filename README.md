@@ -68,7 +68,7 @@ re-reads both dates, so a 30-day month becoming 29 days is picked up
 automatically.
 
 **When ACJU is behind:** if the month on ACJU's page has already ended and the
-new one is not published yet, the script rolls forward a *provisional* 29-day
+new one is not published yet, the script rolls forward a *provisional* 30-day
 month starting the day after the confirmed one ended, flagged with
 `"provisional": true`. Each later run replaces it as soon as ACJU catches up.
 
