@@ -456,8 +456,17 @@ function save(record, existing) {
 
     if (daysBetween(acju.endDate, today) > 0) {
       // The month ACJU shows has ended and the new one is not published yet.
+      // ACJU's page can lag behind an announcement (e.g. a 29-day estimate that
+      // the sighting result extended to 30), so never roll forward from an end
+      // date earlier than one already stored.
+      const storedEnd = existing?.endDate ? parseISODate(existing.endDate) : null;
+      const lastEnd = storedEnd && daysBetween(acju.endDate, storedEnd) > 0 ? storedEnd : acju.endDate;
+      if (existing && coversDate(existing, today) && lastEnd === storedEnd) {
+        console.log('⏭️  ACJU is behind the stored month; keeping current data');
+        return;
+      }
       console.log('🌙 ACJU has not published the new month yet — rolling forward provisionally');
-      save(buildProvisionalMonth(acju.endDate, today), existing);
+      save(buildProvisionalMonth(lastEnd, today), existing);
       return;
     }
 
