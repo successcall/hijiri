@@ -390,6 +390,46 @@ function coversDate(record, date) {
   return Array.isArray(record?.dates) && record.dates.some((d) => d.gregorianDate === target);
 }
 
+/**
+ * Whether a stored record agrees with its own startDate/endDate.
+ *
+ * startDate and endDate are the source of truth; the month name, year, length
+ * and every Gregorian↔Hijri pairing derive from them. A record that disagrees
+ * (e.g. a git merge that took the month label from one side and the dates from
+ * the other) would otherwise be served to every client until the next month.
+ */
+function isConsistent(record) {
+  try {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(record?.startDate || '') ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(record?.endDate || '')) return false;
+    const expected = buildMonth(parseISODate(record.startDate), parseISODate(record.endDate));
+    return record.hijriMonth === expected.hijriMonth &&
+           record.hijriYear === expected.hijriYear &&
+           record.monthNameArabic === expected.monthNameArabic &&
+           record.totalDays === expected.totalDays &&
+           JSON.stringify(record.dates) === JSON.stringify(expected.dates);
+  } catch (err) {
+    return false;
+  }
+}
+
+/** Rebuild a stored record that contradicts its own boundaries, and save it. */
+function repairStored(existing) {
+  if (!existing || isConsistent(existing)) return existing;
+  try {
+    const rebuilt = buildMonth(
+      parseISODate(existing.startDate), parseISODate(existing.endDate),
+      { provisional: Boolean(existing.provisional) }
+    );
+    warn(`Stored month contradicted its own dates (${existing.startDate} → ${existing.endDate}) — rebuilt it`);
+    save(rebuilt, existing);
+    return rebuilt;
+  } catch (err) {
+    warn(`Stored month is inconsistent and could not be rebuilt: ${err.message}`);
+    return existing;
+  }
+}
+
 /** Everything except the timestamp — used to avoid no-op commits. */
 function contentOf(record) {
   if (!record) return null;
@@ -412,7 +452,7 @@ function save(record, existing) {
 // ── Main ───────────────────────────────────────────────────────────────────
 
 (async () => {
-  const existing = readExisting();
+  const existing = repairStored(readExisting());
   const today = getSLToday();
   console.log(`🌙 Checking ACJU — today in Sri Lanka is ${formatLongDate(today)}`);
 
