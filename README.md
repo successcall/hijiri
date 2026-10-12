@@ -76,6 +76,11 @@ month starting the day after the confirmed one ended, flagged with
 length that isn't 29 or 30 days) the run fails loudly and leaves the stored
 data untouched, rather than overwriting it with a guess.
 
+## Logic history
+
+Changes to the month-selection logic, and the reasons for them, are recorded in
+[LOGIC-HISTORY.md](LOGIC-HISTORY.md). Add an entry there whenever the logic changes.
+
 ## Manual Update
 
 You can trigger the update manually:
