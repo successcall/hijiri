@@ -64,8 +64,23 @@ jobs:
 
           git commit -m "Update Hijri month calendar - $(TZ=Asia/Colombo date)"
 
-          # Pull any remote changes first, then push
-          git pull --rebase origin main || true
+          # Pull remote changes first. The JSON is regenerated from scratch on
+          # every run, so if a manual push touched it too, our freshly computed
+          # copy wins (-X theirs = the commit being replayed). Never leave a
+          # half-finished rebase behind: abort and fail instead of pushing it.
+          if ! git pull --rebase -X theirs origin main; then
+            git rebase --abort || true
+            echo "::error::Could not rebase onto origin/main" >&2
+            exit 1
+          fi
+
+          # Refuse to publish a file with merge-conflict markers or without
+          # today's Hijri day, so a bad merge can never reach GitHub Pages.
+          if grep -qE '^(<<<<<<<|=======|>>>>>>>)' api/hijri-month.json; then
+            echo "::error::Conflict markers in api/hijri-month.json" >&2
+            exit 1
+          fi
+          node -e "const r=require('./api/hijri-month.json');if(!(r.currentHijriDay>0&&r.dates.length===r.totalDays)){console.error('hijri-month.json does not cover today');process.exit(1)}"
 
           # Try push with the default token first (persisted credentials). If it fails and a REPO_TOKEN
           # is provided, retry using that token.
