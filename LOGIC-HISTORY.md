@@ -7,6 +7,21 @@ Entry format: date · what changed · why · files.
 
 ---
 
+## 2026-11-11 — Unpublished new month after a 29-day month = day 30, not a new month
+
+**Trigger:** Jumada al-Awwal 1448 ended on day 29 (Nov 10) per ACJU. On Nov 11
+ACJU had not published the next month, and the script rolled forward to a new
+provisional month starting Nov 11 instead of showing day 30 of Jumada al-Awwal.
+
+**Change:** `buildProvisionalMonth` takes the last month's start too. If that
+month had 29 days and today is the day right after it, the same month is
+extended to 30 days (provisional). Only after day 30 does it roll to a new month.
+
+**Why:** no announcement for the next month means the crescent was not sighted,
+so the month completes 30 days. The next run replaces it if ACJU says otherwise.
+
+**Files:** `api/fetch-month.js`, `api/hijri-month.json`
+
 ## 2026-10-12 — Self-repair of a stored month that contradicts its own dates
 
 **Trigger:** a git merge of the workflow's provisional commit with a local

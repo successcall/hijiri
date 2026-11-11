@@ -369,7 +369,15 @@ function buildMonth(startDate, endDate, { provisional = false } = {}) {
  * forward from the day after it ended with a provisional 30-day month, which
  * the next run replaces as soon as ACJU catches up.
  */
-function buildProvisionalMonth(lastConfirmedEnd, today) {
+function buildProvisionalMonth(lastConfirmedStart, lastConfirmedEnd, today) {
+  // A 29-day month whose 30th day is today: ACJU has not announced the next
+  // month, so the crescent was not sighted and the month completes 30 days.
+  // Extend the same month by one day instead of starting a new one.
+  if (lastConfirmedStart &&
+      daysBetween(lastConfirmedStart, lastConfirmedEnd) + 1 === 29 &&
+      daysBetween(lastConfirmedEnd, today) === 1) {
+    return buildMonth(lastConfirmedStart, addDays(lastConfirmedStart, 29), { provisional: true });
+  }
   let start = addDays(lastConfirmedEnd, 1);
   // Guard against a long outage: keep stepping until the month covers today.
   while (daysBetween(start, today) >= 30) start = addDays(start, 30);
@@ -469,7 +477,7 @@ function save(record, existing) {
     if (existing?.endDate) {
       fail(`Could not read ACJU (${err.message}) and the stored month does not cover today`);
       console.log('🌙 Rolling forward provisionally so consumers keep working');
-      save(buildProvisionalMonth(parseISODate(existing.endDate), today), existing);
+      save(buildProvisionalMonth(parseISODate(existing.startDate), parseISODate(existing.endDate), today), existing);
       process.exitCode = 1;
       return;
     }
@@ -506,7 +514,8 @@ function save(record, existing) {
         return;
       }
       console.log('🌙 ACJU has not published the new month yet — rolling forward provisionally');
-      save(buildProvisionalMonth(lastEnd, today), existing);
+      const lastStart = lastEnd === storedEnd ? parseISODate(existing.startDate) : acju.startDate;
+      save(buildProvisionalMonth(lastStart, lastEnd, today), existing);
       return;
     }
 

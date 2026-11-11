@@ -3,10 +3,10 @@
   "hijriYear": "1448",
   "monthNameArabic": "جمادى الأولى",
   "startDate": "2026-10-13",
-  "endDate": "2026-11-10",
-  "currentDate": "Tuesday, November 10, 2026",
-  "currentHijriDay": 29,
-  "totalDays": 29,
+  "endDate": "2026-11-11",
+  "currentDate": "Wednesday, November 11, 2026",
+  "currentHijriDay": 30,
+  "totalDays": 30,
   "dates": [
     {
       "hijriDay": 1,
@@ -210,7 +210,15 @@
       "gregorianMonth": "November",
       "gregorianDay": 10,
       "gregorianYear": 2026
+    },
+    {
+      "hijriDay": 30,
+      "gregorianDate": "November 11, 2026",
+      "gregorianMonth": "November",
+      "gregorianDay": 11,
+      "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-11-09T20:21:29.728Z"
+  "fetchedAt": "2026-11-11T01:12:19.397Z",
+  "provisional": true
 }
