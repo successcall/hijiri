@@ -93,9 +93,8 @@ You can trigger the update manually:
 
 Run the fetch script: `npm run fetch-month`
 
-It needs Node 18+ and no dependencies — `api/hijri-month.json` is rewritten
-only if the data changed. (`npm install` is only needed for the legacy
-single-date `api/index.js` script, which nothing consumes.)
+It needs Node 18+ and no dependencies (no `npm install`) — `api/hijri-month.json`
+is rewritten only if the data changed.
 
 ## Deployment
 
