@@ -4,8 +4,8 @@
   "monthNameArabic": "جمادى الثانية",
   "startDate": "2026-11-12",
   "endDate": "2026-12-10",
-  "currentDate": "Sunday, November 15, 2026",
-  "currentHijriDay": 4,
+  "currentDate": "Monday, November 16, 2026",
+  "currentHijriDay": 5,
   "totalDays": 29,
   "dates": [
     {
@@ -212,5 +212,5 @@
       "gregorianYear": 2026
     }
   ],
-  "fetchedAt": "2026-11-14T21:54:08.398Z"
+  "fetchedAt": "2026-11-15T22:24:13.950Z"
 }
